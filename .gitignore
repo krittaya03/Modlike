@@ -23,3 +23,23 @@ dist-ssr
 *.sln
 *.sw?
 
+playwright-report/
+screenshots/
+test-results/
+
+# Node
+node_modules/
+dist/
+
+# Playwright outputs
+playwright-report/
+test-results/
+artifacts/
+screenshots/
+
+# Vite build cache
+.vite/
+
+# System
+.DS_Store
+Thumbs.db
