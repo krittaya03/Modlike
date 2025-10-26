@@ -117,6 +117,8 @@ const requireRole = (...allowedRoles) => {
 };
 
 // --- ROUTES ---
+const eventRoutes = require("./events");
+app.use("/api/events", authenticateJWT, eventRoutes);
 
 // Health check
 app.get("/", (req, res) => {
