@@ -1,0 +1,23 @@
+create database modlike
+
+create tables
+
+command prompt: npm install multer
+
+in .env file: 
+	check user: localhost
+	password : your local password
+
+
+backend path: node server.js
+
+frontend path: npm run dev
+
+login with google
+
+in server.js: add route เพิ่ม // --- EVENT ROUTES ---
+const eventRoutes = require("./events");
+app.use("/api/events", authenticateJWT, eventRoutes);
+
+
+https://drive.google.com/drive/folders/1wUTZAO9RLHoyMQB7jxSE9S2MvL1eJs8C?usp=sharing
