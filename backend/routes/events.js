@@ -1,18 +1,17 @@
+// routes/events.js
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
-const db = require("./db");
-const { authenticateJWT } = require("./middlewares");
+const connectDB = require("../config/db");
+const { authenticateJWT } = require("../middleware/authJWT");
 
-// --- Image Upload Config ---
+// Image upload config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + path.extname(file.originalname);
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
+  filename: (req, file, cb) => cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname)),
 });
+
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -23,9 +22,10 @@ const upload = multer({
   },
 });
 
-// --- CREATE EVENT ---
+// CREATE EVENT
 router.post("/create", authenticateJWT, upload.single("image"), async (req, res) => {
   try {
+    const db = await connectDB();
     const { title, startDateTime, endDateTime, location, maxParticipant, maxStaff, eventInfo, status } = req.body;
 
     if (!title || !startDateTime || !endDateTime || !location) {
@@ -33,7 +33,7 @@ router.post("/create", authenticateJWT, upload.single("image"), async (req, res)
     }
 
     const imagePath = req.file ? req.file.path : null;
-    const orgId = req.user.id; // ใช้ id จาก token เป็น organizer
+    const orgId = req.user.id;
 
     const [result] = await db.query(
       `INSERT INTO event (EventName, EventOrgID, StartDateTime, EndDateTime, MaxParticipant, MaxStaff, EventInfo, Location, Status, ImagePath)
