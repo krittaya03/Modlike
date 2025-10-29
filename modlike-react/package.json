@@ -3,11 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
+ "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "test:e2e": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:smoke": "playwright test tests/smoke-login.spec.ts -g @smoke"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@playwright/test": "^1.56.1",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
@@ -33,3 +34,5 @@
     "vite": "^7.1.7"
   }
 }
+
+
