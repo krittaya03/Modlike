@@ -4,7 +4,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginPage from "./pages/Login"; 
 
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from './pages/AdminDashboard';
+import EventListPage1 from "./pages/Eventlistuser";
+import CreateEventPage from "./pages/CreateEventPage";
+import AdminEventlist from "./pages/AdminEventlist";
+
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 
 function App() {
   return (
@@ -19,6 +25,42 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/eventlist1"
+          element={
+            <ProtectedRoute>
+              <EventListPage1 />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/create-event"
+          element={
+            <ProtectedRoute>
+              <CreateEventPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          } 
+        />
+
+        <Route
+          path="/admin/eventlist2"
+          element={
+            <AdminProtectedRoute>
+              <AdminEventlist />
+            </AdminProtectedRoute>
+          }
+        />
+
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

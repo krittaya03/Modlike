@@ -1,0 +1,562 @@
+/* src/pages/AdminEventlist.module.css (ฉบับแก้ไขสมบูรณ์) */
+
+/* =================================== */
+/* === Main Layout & Content Area === */
+/* =================================== */
+
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: #fdfdfd; /* สีพื้นหลังอ่อนๆ */
+}
+
+.main-content-adlist {
+    flex-grow: 1;
+    padding: 0;
+    /* overflow-y: auto; */
+    background-color: #f4f7f6;
+    margin-left: 112px; /* เว้นที่ว่างด้านซ้ายเท่ากับความกว้างของ Navbar */
+    max-height: 100%;
+    transition: margin-left 0.3s ease;
+    display: flex;          /* 1. ทำให้เป็น Flex Container */
+    flex-direction: column; /* 2. จัดเรียงลูกๆ (header, content) เป็นแนวตั้ง */
+}
+
+/* =================================== */
+/* === Tab Navigation (User Style) === */
+/* =================================== */
+
+.header {
+    background-color: transparent;
+    border-bottom: none;
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tab-navigation {
+    display: flex;
+    gap: 4px;
+
+}
+
+.tab-btn {
+    font-family: 'Jost', sans-serif;
+    padding: 12px 24px;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    font-size: 2.3rem;
+    font-weight: 500;
+    color: #555;
+    font-weight: 500;
+    margin-top: 10px;
+    outline: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.tab-btn:hover {
+    background-color: #e9eef3;
+}
+
+.tab-btn.active {
+    background-color: #ffffff;
+    color: #162660;
+    font-weight: 500;
+}
+
+/* ============================================== */
+/* === Content Container (นำมาจาก User Style) === */
+/* ============================================== */
+
+.tab-content-container {
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 0 ;
+    border-radius: 0 12px 12px 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    /* max-height: 100%; */
+    flex-grow: 1;         /* 1. สั่งให้ยืดขยายเต็มพื้นที่ที่เหลือในแนวตั้ง */
+    overflow-y: auto;     /* 2. ถ้าเนื้อหายาวเกิน ให้มี scrollbar ที่กล่องนี้ */
+    min-height: 0;        /* 3. (สำคัญ) ป้องกันปัญหา Flexbox บีบอัดเนื้อหาไม่ลง */
+}
+
+.tab-content {
+    display: none;
+    background-color: #ffffff;
+    padding: 5px;
+    max-height: 100%;
+    justify-content: flex-start;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ============================================= */
+/* === ส่วนที่เหลือทั้งหมด (คงดีไซน์เดิมไว้) === */
+/* ============================================= */
+
+.filter-tag {
+    background-color: #D0E6FD;
+    border-radius: 30px;
+    padding: 0;
+    max-width: 150px;        /* กำหนดความกว้างสูงสุด (ปรับได้) */
+    max-height: 50px;
+    font-size: 1.5rem;
+    /* text-align: center; */
+    margin: 8px;
+    font-weight: 500;
+}
+.filter-tag img {
+    width: 24px;   /* ขนาดไอคอน */
+    height: 24px;
+    margin-right: 10px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+    margin-left: 20px;
+    margin-top: 10px;
+    flex-shrink: 0;    /* ป้องกันไอคอนบีบตัวเมื่อข้อความยาว */
+    align-items: center;
+}
+
+
+
+/* เปลี่ยน .event-grid เป็น .listcontain */
+.listcontain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5rem; 
+    justify-content: flex-start; /* จัดชิดซ้าย */
+    padding: 1rem;
+}
+
+/* เปลี่ยน .event-card เป็น .event-cardlist1 */
+.event-cardlist1 {
+    display: flex;
+    background-color: #F1E4D1;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    max-width: 900px;
+    max-height: 400px;
+    /* --- ส่วนสำคัญ: กำหนดให้มี 2 กล่องต่อแถว และไม่ขยายตัว --- */
+    flex: 0 1 calc(50% - 2.5rem);
+}
+
+/* --- เพิ่มสไตล์ใหม่ๆ ที่จำเป็นทั้งหมด --- */
+
+.event-image-container {
+    flex: 0 0 40%;
+}
+
+.event-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.event-detailslist1 {
+    flex: 1;
+    padding: 20px 25px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    color: #162660;
+}
+
+.event-title {
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1.3;
+    color: #162660; /* เพิ่มสีให้ตรงกัน */
+}
+
+.event-info-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    font-size: 1.1rem; /* ปรับขนาดฟอนต์ให้เหมาะสม */
+    color: #162660; /* เพิ่มสีให้ตรงกัน */
+}
+
+.event-info-row img {
+    width: 24px;
+    height: 24px;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.event-cardlist1 .loci {
+    width: 30px;
+    height: 30px;
+}
+
+.location-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* เปลี่ยน .details-btn เป็น .details-btnlist1 */
+.details-btnlist1 {
+    position: absolute;
+    bottom: 15px;
+    right: 25px;
+    font-family: 'Jost';
+    background-color: #162660;
+    color: white;
+    border: none;
+    padding: 8px 25px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.details-btnlist1:hover {
+    background-color: #D0E6FD;
+    color: #162660;
+}
+
+/* --- Approval Queue Tab Content --- */
+
+.filter-tabs-approval {
+    display: flex;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 400px; 
+    border: 1px solid #ccc; 
+    background-color: #fff;
+}
+
+.filter-tab-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    flex-grow: 1;
+    text-align: center;
+    background-color: #fff;
+    color: #162660;
+    font-weight: bold;
+}
+
+.filter-tab-item.active {
+    background-color: #D0E6FD; 
+}
+
+.approval-item {
+    background-color: #F1E4D1; 
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative; 
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 15px;
+}
+
+.approval-item .approval-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.approval-item .approval-details {
+    position: relative;
+    padding-right: 10px;
+}
+
+.approval-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px; 
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(to right, #a4e6b7 50%, #f7b7a6 50%); 
+    pointer-events: none; 
+    z-index: 1;
+}
+
+.details-top-right {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 5; 
+    
+    background-color: #162660;
+    color: white;
+    border: none;
+    padding: 8px 25px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.horizontal-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    z-index: 3; 
+    height: 40px;
+    grid-column: 1 / -1;
+}
+
+.action-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0; 
+    height: 100%; 
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-grow: 1;
+    background-color: transparent; 
+    color: rgb(6, 6, 6);
+}
+
+.approve-btn {
+    border-radius: 0 0 0 8px;
+}
+
+.reject-btn {
+    border-radius: 0 0 8px 0;
+}
+
+.details-queue-btn {
+    background-color: #162660; 
+    color: white;
+    padding: 8px 15px;
+    margin-top: 0;
+}
+
+.loci {
+    width: 28px;
+    height: 28px;
+}
+
+.clocki{
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-right: 8px;
+    
+}
+
+/* --- Approve/Reject Tab Content --- */
+.approved-item, .rejected-item {
+    background-color: #F1E4D1; 
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    height: 150px; 
+    border: none; 
+}
+
+.approved-image, .rejected-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.approved-details, .rejected-details {
+    flex-grow: 1;
+}
+
+.status-tag {
+    position: absolute;
+    top: 15px;
+    right: 15px; 
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #162660;
+}
+
+.status-approved {
+    background-color: #a4e6b7; 
+
+}
+
+.status-rejected {
+    background-color: #f7b7a6; 
+}
+
+.approved-item .details-btn, .rejected-item .details-btn {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    float: none;
+    margin-top: 0;
+
+        
+    background-color: #162660;
+    color: white;
+    border: none;
+    padding: 8px 25px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* --- Modal/Popup Styling (Pop-up Detail) --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #F1E4D1; 
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: grid; 
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.close-btn {
+    color: #162660;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.popup-gimbab {
+    width: 600px;
+    display: block; 
+}
+
+.popup-gimbab .modal-header h2 {
+    color: #162660;
+    font-size: 1.5em;
+    margin-top: 0;
+}
+
+.popup-gimbab p {
+    margin: 5px 0 10px 0;
+    padding-left: 10px;
+}
+
+.popup-gimbab .content-activities-list {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+.detail-page {
+    width: 900px;
+    grid-template-areas:
+        "header header"
+        "text-content image-sidebar"
+        "reason reason"
+        "back-btn back-btn";
+    grid-template-columns: 1fr 1fr;
+    padding: 30px;
+}
+
+.detail-header {
+    grid-area: header;
+    background-color: transparent; 
+    padding: 15px 0; 
+    border-radius: 0;
+    margin-bottom: 10px;
+    color: #162660;
+}
+
+.header-band-detail {
+    background-color: #F1E4D1; 
+    border: 1px solid #162660; 
+    padding: 5px 10px;
+    margin: 15px 0 10px 0;
+    border-radius: 5px;
+}
+
+.detail-header-text {
+    margin: 0;
+    color: #162660;
+    font-size: 1.1em;
+}
+
+.image-sidebar {
+    grid-area: image-sidebar;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-left: 20px;
+}
+
+.image-sidebar img {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.text-content {
+    grid-area: text-content;
+}
+
+.rejected-status-box {
+    background-color: #e74c3c; 
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.approved-status-box {
+    background-color: #2ecc71; 
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

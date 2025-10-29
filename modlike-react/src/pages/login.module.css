@@ -1,0 +1,291 @@
+/* src/pages/login.module.css (ฉบับแก้ไข) */
+
+/* หมายเหตุ: Global style 'body' ควรย้ายไปไว้ในไฟล์ CSS หลักของโปรเจกต์ (เช่น index.css) */
+
+.logblock{
+    transform: scale(0.8);
+    transform-origin: center top;
+}
+
+.modlike{
+    position: absolute;
+    width: 252px;
+    height: 68px;
+    left: 1231px;
+    top: 230px;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 48px;
+    line-height: 69px;
+    text-align: center;
+    color: #162660;
+}
+.logo{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    isolation: isolate;
+    position: absolute;
+    width: 263.81px;
+    height: 137px;
+    left: 1007px;
+    top: 225px;
+}
+
+.Welcome{
+    position: absolute;
+    width: 687px;
+    height: 58px;
+    left: 117px;
+    top: 150px;
+    z-index: 2;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 58px;
+    text-align: center;
+    color: #162660;
+}
+.blar{
+    position: absolute;
+    width: 597px;
+    height: 58px;
+    left: 155px;
+    top: 210px;
+    z-index: 2;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 20px;
+    line-height: 29px;
+    text-align: center;
+    color: #162660; 
+}
+.sch{
+    position: absolute;
+    width: 618px;
+    height: 618px;
+    left: 145px;
+    top: 353px;
+    z-index: 3;
+}
+
+.recbig{
+    position: absolute;
+    width: 728px;
+    height: 870px;
+    left: 90px;
+    top: 124px;
+    background: #DBEBFD;
+    box-shadow: 20px 25px 25px -10px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+}
+
+.recsmall{
+    position: absolute;
+    width: 728px;
+    height: 696px;
+    left: 90px;
+    top: 298px;
+    z-index: 2;
+    background: #DBEBFD;
+    box-shadow: 0px -20px 25px -10px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+}
+.g4{
+    position: absolute;
+    width: 422.92px;
+    height: 349.81px;
+    left: 605.08px;
+    top: 148px;
+    z-index: 1;
+}
+.g3{
+    position: absolute;
+    width: 395.57px;
+    height: 435.16px;
+    left: -10px;
+    top: 145px;
+    z-index: 1;
+}
+.let{
+    position: absolute;
+    width: 292px;
+    height: 44px;
+    left: 1231px;
+    top: 285px;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 46px;
+    text-align: center;
+    color: #162660;
+}
+.login{
+    position: absolute;
+    width: 586px;
+    height: 319px;
+    left: 985px;
+    top: 408px;
+}
+.use{
+    margin-bottom: 20px; 
+    width: 578px;
+    height: 52px;
+    left: 985px;
+    top: 408px;
+    background: #F1E4D1;
+    border: none;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 35px;
+    text-align: left;
+    color: #939393;
+}
+.pass{
+    width: 578px;
+    height: 52px;
+    left: 985px;
+    top: 1000px;
+    background: #F1E4D1;
+    border: none;
+    margin-bottom: 20px;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 35px;
+    text-align: left;
+    color: #939393;
+}
+.rem{
+    position: absolute;
+    top: 0px; 
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 46px;
+    color: #162660;
+    margin-top: 150px;
+    margin-left: 40px;
+}
+.remember { /* เปลี่ยนจาก #remember */
+    position: static;
+    width: 25px;
+    height: 25px;
+    left: 900px;
+    top: 600px;
+    margin-top: 17px;
+}
+
+.logbut{
+    position: absolute;
+    width: 578px;
+    height: 52px;
+    top: 230px;
+    border: none;
+    background: #F1E4D1;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 46px;
+    text-align: center;
+    color: #162660;
+}
+.line1{
+    position: absolute;
+    width: 272px;
+    height: 0px;
+    left: 985px;
+    top: 750px;
+    border: 1px solid #000000;
+}
+.or{
+    position: absolute;
+    width: 73px;
+    height: 44px;
+    left: 1260px;
+    top: 700px;
+    margin-top: 23px;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 46px;
+    color: #162660;
+}
+.line2{
+    position: absolute;
+    width: 276px;
+    height: 0px;
+    left: 1285px;
+    top: 750px;
+    border: 1px solid #000000;
+}
+
+.loggoo {
+    position: absolute;
+    width: 578px;
+    height: 52px;
+    left: 985px;
+    top: 800px;
+    border: none;
+    background: #F1E4D1;
+    font-family: 'Jost';
+    font-weight: 400;
+    font-size: 32px;
+    color: #162660;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+}
+.loggoo:hover{ background-color: #DBEBFD; }
+
+.gg { /* เปลี่ยนจาก #gg */
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    left: 1080px;
+    top: 809px;
+}
+
+.forgot-btn {
+    position: absolute;
+    width: 246px;
+    height: 35px;
+    left: 1325px;
+    top: 557px;
+    background-color: transparent;
+    border: none;
+    color: #162660;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Jost';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 46px;
+}
+
+.forgot-btn:hover {
+    color: dodgerblue;
+}
+
+.orr{
+    position:absolute;
+    top: -5px;
+    left: 0px;
+}
+
+

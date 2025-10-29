@@ -1,0 +1,236 @@
+/* src/pages/dashboard.module.css (ฉบับแก้ไข) */
+
+.dashboardContainer {
+    width: 100%;
+}
+
+/* ==================== HEADER SECTION ==================== */
+.blueblock {
+    background: #162660;
+    color: white;
+    padding: 40px 72px 100px 72px; 
+    width: 100%;
+    position: relative;
+    z-index: 0;
+}
+.welcomeTitle {
+    font-weight: 600;
+    font-size: clamp(48px, 8vw, 82px);
+    margin: 0;
+    line-height: 1.1;
+    padding-top: 25px;
+}
+.line { /* เปลี่ยนจาก #line */
+    border: 1px solid #FFFFFF;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.newevent { /* เปลี่ยนจาก #newevent */
+    font-weight: 400;
+    font-size: clamp(28px, 4vw, 36px);
+    margin: 0;
+}
+.profileIcon {
+    position: absolute;
+    top: 70px;
+    right: 72px; 
+    cursor: pointer;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid white;
+    z-index: 5;
+}
+.profileIcon img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ==================== EVENT CARDS SECTION ==================== */
+.newEventsSection {
+    margin-top: -150px;
+    margin-left: 40px;
+    position: relative;
+    width: 100%;
+    z-index: 2;
+    padding: 50px;
+    box-sizing: border-box;
+    /* margin: 0 50px ; */
+}
+
+.eventCardsContainer {
+    display: flex;
+    gap: 25px;
+    overflow-x: auto;
+    padding: 20px 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.eventCardsContainer::-webkit-scrollbar {
+    display: none;
+}
+
+.eventCard {
+    background-color: #F0F5FA;
+    border-radius: 20px;
+    padding: 20px;
+    width: 290px;
+    min-width: 290px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+    transition: transform 0.2s ease-in-out;
+    /* ทำให้ Card เป็น Flex Container แนวตั้ง */
+    display: flex;
+    flex-direction: column;
+}
+
+.eventCard:hover {
+    transform: translateY(-5px);
+}
+
+.eventCard img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+.eventOrganizer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 300;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.organizerInitial {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: white;
+    font-weight: 700;
+}
+.sInitial { background-color: #4A90E2; }
+.gInitial { background-color: #F5A623; }
+
+/* ทำให้ .eventInfo ยืดเต็มพื้นที่ที่เหลือในแนวตั้ง */
+.eventInfo {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.eventInfo h3 {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+/* --- KEY CHANGE 1: แก้ไข Description --- */
+.eventDescription {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.4; /* เพิ่ม line-height เพื่อให้อ่านง่ายขึ้น */
+    /* --- START: เทคนิคการตัดข้อความ (Line Clamp) --- */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* กำหนดให้แสดงผลสูงสุด 2 บรรทัด */
+    -webkit-box-orient: vertical;
+    /* --- END: เทคนิคการตัดข้อความ --- */
+}
+
+/* --- KEY CHANGE 2: แก้ไข Button --- */
+.detailsBtn {
+    background-color: #162660;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'Jost', sans-serif;
+    transition: background-color 0.2s;
+    /* --- START: เทคนิคการจัดวาง --- */
+    margin-top: auto; /* ดันปุ่มลงไปอยู่ล่างสุดของ .eventInfo */
+    align-self: flex-end; /* จัดปุ่มไปอยู่ทางขวา */
+    /* --- END: เทคนิคการจัดวาง --- */
+}
+
+.detailsBtn:hover {
+    background-color: #2a439e;
+}
+
+.moreCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #162660;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 20px;
+    padding: 0 0 0 50px;
+}
+.moreCard img {
+    width: 30px;
+    height: auto;
+    margin-bottom: 10px;
+}
+/* ==================== MAIN CONTENT SECTION ==================== */
+.mainContent {
+    padding: 10px 72px 120px 72px;
+}
+.scheduleHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.mysche, .view { /* เปลี่ยนจาก #mysche, #view */
+    font-weight: 500; 
+    font-size: 32px; 
+    color: #162660; 
+    margin: 0; 
+}
+.view { cursor: pointer; } /* เปลี่ยนจาก #view */
+.view:hover{ color: #a6cffd; } /* เปลี่ยนจาก #view:hover */
+.scheduleLayout { display: flex; gap: 30px; }
+.dateTabs { width: 85px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; flex-shrink: 0; -ms-overflow-style: none; scrollbar-width: none; }
+.dateTabs::-webkit-scrollbar { display: none; }
+.dateTab { background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; flex-shrink: 0; transition: all 0.2s ease; }
+.dateTab.active { background-color: #DBEBFD; border-color: #a6cffd; font-weight: bold; }
+.dateTab:not(.active):hover { background-color: #f0f5fa; transform: scale(1.05); }
+.dayName { display: block; font-size: 14px; color: #555; }
+.dayNumber { display: block; font-size: 24px; color: #333; }
+.scheduleCard { flex-grow: 1; display: flex; gap: 20px; align-items: center; }
+.timeBlock { display: flex; flex-direction: column; font-weight: 400; font-size: 20px; color: #000000; }
+.scheduleDetails {  display: flex; align-items: center; justify-content: space-between; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid #162660;  background: #F1E4D1; border-radius: 10px; min-width: 780px;}
+.scheduleDetails h3 { color: #162660; font-size: 1.2rem; font-weight: 600; margin: 0; }
+.scheduleDetails p { color: #162660; display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 0; }
+.scheduleDetails p img { width: 20px; height: 20px; }
+
+/* ==================== BOTTOM NAVIGATION BAR ==================== */
+.bottomNav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+    border-top: 1px solid #e0e0e0;
+}
+.navItem { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #162660; font-size: 0.8rem; font-weight: 500; }
+.navItem img { width: 28px; height: 28px; margin-bottom: 5px; }
+
+/* ==================== MODAL & LOADING ==================== */
+.modalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1001; }
+.modalContent { background-color: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; position: relative; text-align: center; font-family: 'Jost', sans-serif; }
+.modalProfilePic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; }
+.modalCloseButton { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
+.loadingContainer { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 2rem; color: #162660; }

@@ -1,0 +1,105 @@
+.side-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 112px;
+    height: 100%;
+    background-color: #D0E6FD;
+    color: #162660;
+    padding: 1.5rem 1rem;
+    
+    /* 👇 ปรับส่วนนี้ 👇 */
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; <-- เอาบรรทัดนี้ออก */
+    
+    box-sizing: border-box;
+    transition: width 0.3s ease;
+    font-family: 'Jost';
+}
+
+
+/* 2. สไตล์ของแต่ละรายการเมนู (nav-item) */
+.side-nav .nav-item {
+    /* --- ส่วนที่แก้ไข --- */
+    display: flex;
+    flex-direction: column;  /* 1. จัดเรียงไอคอนกับตัวหนังสือเป็นแนวตั้ง */
+    align-items: center;     /* 2. จัดให้อยู่ตรงกลางแนวนอน */
+    justify-content: center; /* 3. จัดให้อยู่ตรงกลางแนวตั้ง */
+    
+    width: 80px;
+    padding: 0.75rem 0rem;   /* ปรับ padding ให้มีพื้นที่แนวตั้งมากขึ้น */
+    margin-top: 0.5rem;
+    border-radius: 8px;
+    background-color: transparent;
+    border: none;
+    color: inherit;
+    text-align: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.side-nav .nav-top-item {
+    display: flex;
+    align-items: center;
+    width: 80px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background-color: transparent;
+    border: none;
+    color: inherit;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* 3. สไตล์เมื่อเอาเมาส์ไปชี้ (Hover) */
+.side-nav .nav-item:hover {
+    background-color: #F1E4D1; 
+    border-radius: 30px;
+}
+
+.side-nav .nav-top-item:hover {
+    background-color: #F1E4D1;
+    border-radius: 30px;
+}
+
+/* 4. สไตล์สำหรับเมนูที่กำลัง Active */
+.side-nav .nav-item.active {
+    background-color: #F1E4D1;
+    font-weight: bold;
+    border-radius: 30px;
+}
+
+/* 5. สไตล์ของไอคอนและตัวหนังสือภายใน nav-item */
+.side-nav .nav-item img {
+    width: 24px;
+    height: 24px;
+    margin-right: 0;         /* ไม่ต้องมี margin ขวาแล้ว */
+    margin-bottom: 0.3rem;   /* 4. เพิ่มระยะห่างระหว่างไอคอนกับตัวหนังสือ */
+}
+
+.side-nav .nav-item span {
+    /* (ถ้าจำเป็น) สามารถกำหนดสไตล์ให้ตัวหนังสือตรงนี้ได้ */
+    line-height: 1; /* ช่วยให้การจัดวางแม่นยำขึ้น */
+}
+
+.side-nav .nav-top-item img {
+    width: 50px;
+    height: 50px;
+    margin-right: 0;
+}
+
+/* --- ส่วนที่แก้ไขเพิ่มเติมสำหรับจัดเมนูให้อยู่ตรงกลางของ Sidebar --- */
+.side-nav .nav-menu {
+    /* ไม่ต้องใช้ margin-top แล้ว */
+    /* margin-top: 6rem; */
+    
+    flex-grow: 1;            /* 5. ทำให้ nav-menu ขยายเต็มพื้นที่ที่เหลือ */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 6. จัดให้ไอเท็มทั้งหมดอยู่ตรงกลางแนวตั้งของพื้นที่ที่ขยาย */
+    gap: 0.5rem;             /* (ทางเลือก) เพิ่มระยะห่างระหว่างปุ่ม */
+}

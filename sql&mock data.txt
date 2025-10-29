@@ -1,0 +1,92 @@
+CREATE DATABASE modlike;
+USE modlike;
+
+
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  google_id VARCHAR(255) UNIQUE,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  role ENUM('user','admin') DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+SELECT * FROM users;
+SHOW TABLES;
+
+
+#ตาราง event
+CREATE TABLE event (
+  EventID INT AUTO_INCREMENT PRIMARY KEY,
+  EventName VARCHAR(100) NOT NULL,
+  EventOrgID INT NOT NULL,
+  StartDateTime DATETIME,
+  EndDateTime DATETIME,
+  MaxParticipant INT NULL,  
+  MaxStaff INT NULL,        
+  EventInfo TEXT,
+  Location VARCHAR(255),
+  Status ENUM('Draft','Pending','Approved','Rejected','Cancelled') DEFAULT 'Draft',
+  ImagePath VARCHAR(255),
+  FOREIGN KEY (EventOrgID) REFERENCES users(id)
+);
+
+
+-- ข้อมูลที่อยากลองเอาไปกรอกหน้า Create Form
+
+Event 1: 
+Event Name: Introduction to Python for Data Science
+Description: A hands-on workshop covering the fundamentals of Python for data analysis. Perfect for beginners, this session will guide you through essential libraries like Pandas and Matplotlib using real-world datasets. No prior programming experience is required.
+Start Date & Time: 2025-11-15 09:00
+End Date & Time: 2025-11-15 15:00
+Location: Learning Exchange Building (LX), Room SCL 801, KMUTT
+Max Participants: 30
+Max Staff: 5
+
+Event 2: 
+Event Name: Bangkok Old Town Photo Walk
+Description:Join fellow photography enthusiasts to capture the vibrant life and stunning architecture of Bangkok's historic district. We will explore hidden alleys and famous landmarks, sharing tips and techniques along the way.
+Start Date & Time: 2025-11-22 14:00
+End Date & Time: 2025-11-22 17:00
+Location: Meetup Point: Sanam Chai MRT Station, Exit 1 (Museum Siam)
+Max Participants: 20
+Max Staff: 3
+
+Event 3: 
+Event Name: Sunrise Yoga in the Park
+Description: Start your day with a rejuvenating morning yoga session surrounded by nature. This class is designed for all levels, focusing on gentle flows and breathing exercises to energize your body and mind.
+Start Date & Time: 2025-11-30 06:30
+End Date & Time: 2025-11-30 07:30
+Location: Lumpini Park (Near the King Rama VI Statue)
+Max Participants: 25
+Max Staff: 2
+
+Event 4: 
+Event Name: Online CV & Interview Clinic
+Description: Get professional advice on how to create a standout CV and ace your next job interview. This interactive online clinic, led by HR experts from top tech companies, will include a live Q&A session.
+Start Date & Time: 2025-12-05 19:00
+End Date & Time: 2025-12-05 21:00
+Location: Online (Zoom Meeting)
+Max Participants: 50
+Max Staff: 4
+
+Event 5: 
+Event Name: University Board Game Night
+Description: Unwind and have fun at our monthly board game night! We have a huge collection of games, from strategy classics to hilarious party games. It's a great opportunity to meet new people and challenge your friends.
+Start Date & Time: 2025-12-12 18:00
+End Date & Time: 2025-12-12 22:00
+Location: Student Activity Center, Main Auditorium Building
+Max Participants: 40
+Max Staff: 2
+
+Event 6: 
+Event Name: Guest Lecture: The Future of AI in Southeast Asia
+Description: A special lecture by Dr. Arisara Thompson, a leading researcher in machine learning, discussing the latest AI trends, challenges, and opportunities within the ASEAN region.
+Start Date & Time: 2025-12-18 13:30
+End Date & Time: 2025-12-18 15:00
+Location: Auditorium, KX Building
+Max Participants: 150
+Max Staff: 10
+

@@ -1,0 +1,215 @@
+/* src/pages/create-event.module.css */
+
+/* หมายเหตุ: Global style เช่น 'body' ควรย้ายไปไว้ในไฟล์ CSS หลักของโปรเจกต์ (เช่น index.css) 
+   เพื่อไม่ให้เกิดผลกระทบที่ไม่คาดคิดเมื่อใช้ CSS Modules */
+
+.app-container {
+  display: flex;
+}
+
+/* ---------------------------------- */
+/* 2. Main Content Styles (ส่วนฟอร์ม) */
+/* ---------------------------------- */
+.main-content-create {
+  flex: 1;
+  margin-left: 70px; 
+  padding: 30px 60px; 
+}
+
+.form-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #162660; 
+  margin-top: 0;
+  margin-bottom: 24px;
+  text-align: left; 
+  width: 100%; 
+}
+
+.form-container {
+  width: 100%;
+  margin: 0; 
+}
+
+/* ---------------------------------- */
+/* 3. Form Component Styles */
+/* ---------------------------------- */
+.form-group {
+  background: #f7f3e8; 
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: 600; 
+  color: #162660; 
+  margin-bottom: 8px; 
+  font-size: 16px;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #162660; 
+  background-color: #ffffff; 
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-error {
+  border-color: #d9534f !important;
+  box-shadow: 0 0 0 1px #d9534f;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.error-message {
+  color: #d9534f;
+  font-size: 13px;
+  margin-top: 5px;
+  display: block; 
+  font-weight: 500;
+}
+
+.form-row-top {
+  display: flex;
+  gap: 20px;
+}
+.form-col-left {
+  flex: 1 1 70%; 
+}
+.form-col-right {
+  flex: 1 1 30%; 
+}
+
+.form-row-bottom {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 20px;
+  margin-top: 20px; 
+}
+
+.form-row-bottom > .form-group {
+  flex: 1 1 45%; 
+  min-width: 300px; 
+}
+
+.form-row-bottom > .form-group:last-of-type {
+  flex-basis: 100%;
+}
+
+.time-inputs {
+  display: flex;
+  gap: 16px;
+}
+.time-inputs input {
+  flex: 1;
+}
+
+.image-upload-group {
+  box-sizing: border-box;
+  padding: 20px; 
+  background: #f7f3e8;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+.image-upload-box {
+  width: 100%;
+  height: 300px; 
+  border: 2px dashed #b0a892;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: #fcfcfc;
+}
+.image-upload-placeholder {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+}
+.image-upload-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+}
+
+/* ---------------------------------- */
+/* 4. Form Footer & Popup Styles */
+/* ---------------------------------- */
+.form-footer {
+  background: #f7f3e8; 
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin: 10px 0 0 0;
+  width: 100%;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary,
+.btn-secondary { 
+  background-color: #162660; 
+  color: white;
+}
+.btn-primary:hover,
+.btn-secondary:hover {
+  background-color: #0d1a47; 
+}
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+.popup-box {
+  background: white;
+  padding: 24px 36px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.popup-box p {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #333;
+}
+.popup-box button {
+  background-color: #162660; 
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.popup-box button:hover {
+  background-color: #0d1a47;
+}

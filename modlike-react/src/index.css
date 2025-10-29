@@ -28,3 +28,10 @@ body {
   background-color: #F8F9FA; /* สีพื้นหลังตามดีไซน์ล่าสุด */
   overflow-x: hidden; /* ป้องกันการ scroll แนวนอนเด็ดขาด */
 }
+
+body {
+  margin: 0;
+  font-family: 'Jost', Arial, sans-serif; /* ตัวอย่าง Font */
+  background-color: #f8f9fa; /* สีพื้นหลังหลัก */
+  color: #162660; /* สีตัวอักษรหลัก */
+}
