@@ -242,6 +242,30 @@ app.post("/api/events/create", authenticateJWT, requireRole("user"), upload.sing
   }
 });
 
+// ==========================
+// 🧾 Get Events by Status
+// ==========================
+app.get("/api/events/status", authenticateJWT, requireRole("user"), async (req, res) => {
+  try {
+    const UserId = req.user.id; // ดึง ID ของ organizer ที่ล็อกอิน
+    const { status } = req.params;
+
+    // ดึงข้อมูล event ตามสถานะของ organizer คนนี้
+    const [events] = await db.query(
+      `SELECT EventID, EventName, StartDateTime, EndDateTime, Location, Status, ImagePath
+       FROM event
+       WHERE EventOrgID = ? AND Status IN ('Draft','Pending','Approved','Rejected')`,
+      [UserId, status]
+    );
+
+    res.status(200).json({ events });
+  } catch (err) {
+    console.error("Get Events by Status Error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 // ============= FEBE2: Admin View & Approve Events =============
 app.get("/api/events/pending", authenticateJWT, requireRole("admin"), async (req, res) => {
   try {
