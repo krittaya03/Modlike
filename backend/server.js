@@ -97,15 +97,39 @@ const authenticateJWT = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const [rows] = await db.query("SELECT id, name, email, google_id, role FROM users WHERE id=?", [decoded.id]);
-    if (rows.length === 0) return res.status(401).json({ message: "User not found" });
-    req.user = rows[0];
+
+    let user;
+
+    // 🔹 ตรวจสอบ token type
+    if (decoded.type === "google") {
+      const [rows] = await db.query(
+        "SELECT id, name, email, google_id, role FROM users WHERE id = ?",
+        [decoded.id]
+      );
+      if (rows.length === 0) return res.status(401).json({ message: "Google user not found" });
+      user = rows[0];
+    } 
+    else if (decoded.type === "local") {
+      const [rows] = await db.query(
+        "SELECT id, username AS name, role FROM LocalUsers WHERE id = ?",
+        [decoded.id]
+      );
+      if (rows.length === 0) return res.status(401).json({ message: "Local user not found" });
+      user = rows[0];
+    } 
+    else {
+      return res.status(401).json({ message: "Invalid token type" });
+    }
+
+    req.user = user;
     next();
   } catch (err) {
-    if (err.name === "TokenExpiredError") return res.status(401).json({ message: "Token expired" });
+    if (err.name === "TokenExpiredError")
+      return res.status(401).json({ message: "Token expired" });
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
 
 const requireRole = (...allowedRoles) => {
   return (req, res, next) => {
@@ -143,7 +167,13 @@ app.get(
   }),
   (req, res) => {
     try {
-      const payload = { id: req.user.id, email: req.user.email, role: req.user.role };
+      
+      const payload = { 
+        id: req.user.id, 
+        email: req.user.email, 
+        role: req.user.role,
+        type: "google"   
+      };
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
       res.redirect(`http://localhost:5173/dashboard?token=${token}&role=${req.user.role}`);
     } catch (err) {
@@ -152,6 +182,55 @@ app.get(
     }
   }
 );
+
+// --- Local Login (username/password) ---
+app.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Missing username or password" });
+    }
+
+    // ตรวจสอบในฐานข้อมูล LocalUsers
+    const [rows] = await db.query("SELECT * FROM LocalUsers WHERE username=?", [username]);
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const user = rows[0];
+
+    // 🔸 ตรวจสอบรหัสผ่านแบบ plain text
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 🔹 สร้าง JWT (ระบุ type: "local")
+    const payload = {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      type: "local"
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
+
+    console.log(`✓ Local user logged in: ${user.username} (${user.role})`);
+
+    // 🔹 ส่ง token และ role กลับไปให้ frontend
+    res.json({ 
+      message: "Login successful",
+      token,
+      role: user.role 
+    });
+
+  } catch (err) {
+    console.error("Local Login Error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 
 // --- Get current user profile ---
 app.get("/api/me", authenticateJWT, (req, res) => {
@@ -242,6 +321,30 @@ app.post("/api/events/create", authenticateJWT, requireRole("user"), upload.sing
   }
 });
 
+// ==========================
+// 🧾 Get Events by Status
+// ==========================
+app.get("/api/events/status", authenticateJWT, requireRole("user"), async (req, res) => {
+  try {
+    const UserId = req.user.id; // ดึง ID ของ organizer ที่ล็อกอิน
+    const { status } = req.params;
+
+    // ดึงข้อมูล event ตามสถานะของ organizer คนนี้
+    const [events] = await db.query(
+      `SELECT EventID, EventName, StartDateTime, EndDateTime, Location, Status, ImagePath
+       FROM event
+       WHERE EventOrgID = ? AND Status IN ('Draft','Pending','Approved','Rejected')`,
+      [UserId, status]
+    );
+
+    res.status(200).json({ events });
+  } catch (err) {
+    console.error("Get Events by Status Error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 // ============= FEBE2: Admin View & Approve Events =============
 app.get("/api/events/pending", authenticateJWT, requireRole("admin"), async (req, res) => {
   try {
@@ -329,4 +432,3 @@ app.listen(PORT, () => {
   console.log(`✓ Server running on http://localhost:${PORT}`);
   console.log(`✓ Google OAuth callback: ${process.env.GOOGLE_CALLBACK_URL}`);
 });
-
