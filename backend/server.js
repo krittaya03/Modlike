@@ -2,6 +2,7 @@
 // server.js (Final Updated)
 // ==========================
 
+
 // IMPORT MODULES
 const express = require("express");
 const passport = require("passport");
@@ -13,9 +14,11 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 
+
 // LOAD .env CONFIG
 dotenv.config();
 const app = express();
+
 
 // ==========================
 // DATABASE CONNECTION
@@ -36,6 +39,7 @@ let db;
     process.exit(1);
   }
 })();
+
 
 // ==========================
 // MIDDLEWARE
@@ -61,7 +65,9 @@ passport.use(
         const googleId = profile.id;
         const name = profile.displayName;
 
+
         const [rows] = await db.query("SELECT * FROM users WHERE google_id=?", [googleId]);
+
 
         let user;
         if (rows.length === 0) {
@@ -76,6 +82,7 @@ passport.use(
           console.log("✓ Existing user logged in:", user);
         }
 
+
         return done(null, user);
       } catch (err) {
         console.error("✗ OAuth error:", err);
@@ -85,6 +92,7 @@ passport.use(
   )
 );
 
+
 // ==========================
 // HELPER MIDDLEWARES
 // ==========================
@@ -92,13 +100,17 @@ const authenticateJWT = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ message: "Authorization header missing" });
 
+
   const token = authHeader.split(" ")[1];
   if (!token) return res.status(401).json({ message: "Token missing" });
+
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+
     let user;
+
 
     // 🔹 ตรวจสอบ token type
     if (decoded.type === "google") {
@@ -108,7 +120,7 @@ const authenticateJWT = async (req, res, next) => {
       );
       if (rows.length === 0) return res.status(401).json({ message: "Google user not found" });
       user = rows[0];
-    } 
+    }
     else if (decoded.type === "local") {
       const [rows] = await db.query(
         "SELECT id, username AS name, role FROM LocalUsers WHERE id = ?",
@@ -116,10 +128,11 @@ const authenticateJWT = async (req, res, next) => {
       );
       if (rows.length === 0) return res.status(401).json({ message: "Local user not found" });
       user = rows[0];
-    } 
+    }
     else {
       return res.status(401).json({ message: "Invalid token type" });
     }
+
 
     req.user = user;
     next();
@@ -129,6 +142,8 @@ const authenticateJWT = async (req, res, next) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
+
 
 
 const requireRole = (...allowedRoles) => {
@@ -145,9 +160,11 @@ const requireRole = (...allowedRoles) => {
   };
 };
 
+
 // ==========================
 // ROUTES
 // ==========================
+
 
 // --- Health check ---
 app.get("/", (req, res) => {
@@ -156,8 +173,10 @@ app.get("/", (req, res) => {
   });
 });
 
+
 // --- Google Auth ---
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
+
 
 app.get(
   "/auth/google/callback",
@@ -167,12 +186,12 @@ app.get(
   }),
   (req, res) => {
     try {
-      
-      const payload = { 
-        id: req.user.id, 
-        email: req.user.email, 
+     
+      const payload = {
+        id: req.user.id,
+        email: req.user.email,
         role: req.user.role,
-        type: "google"   
+        type: "google"  
       };
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
       res.redirect(`http://localhost:5173/dashboard?token=${token}&role=${req.user.role}`);
@@ -183,28 +202,35 @@ app.get(
   }
 );
 
+
 // --- Local Login (username/password) ---
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
+
     if (!username || !password) {
       return res.status(400).json({ message: "Missing username or password" });
     }
 
+
     // ตรวจสอบในฐานข้อมูล LocalUsers
     const [rows] = await db.query("SELECT * FROM LocalUsers WHERE username=?", [username]);
+
 
     if (rows.length === 0) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+
     const user = rows[0];
+
 
     // 🔸 ตรวจสอบรหัสผ่านแบบ plain text
     if (user.password !== password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
 
     // 🔹 สร้าง JWT (ระบุ type: "local")
     const payload = {
@@ -214,16 +240,20 @@ app.post("/api/login", async (req, res) => {
       type: "local"
     };
 
+
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
+
 
     console.log(`✓ Local user logged in: ${user.username} (${user.role})`);
 
+
     // 🔹 ส่ง token และ role กลับไปให้ frontend
-    res.json({ 
+    res.json({
       message: "Login successful",
       token,
-      role: user.role 
+      role: user.role
     });
+
 
   } catch (err) {
     console.error("Local Login Error:", err);
@@ -232,29 +262,39 @@ app.post("/api/login", async (req, res) => {
 });
 
 
+
+
 // --- Get current user profile ---
 app.get("/api/me", authenticateJWT, (req, res) => {
   res.json({ message: "User authenticated", user: req.user });
 });
+
+
+
+
+
 
 // ==========================
 // EVENT SECTION (FEBE1 → FEBE3)
 // ==========================
 
 
+
+
 // ============= FEBE1: User View Approved Events On Dashboard =============
 // ============= FEBE3: User View Approved Events =============
+
 
 app.get("/api/events/approved", authenticateJWT, requireRole("user", "admin"), async (req, res) => {
   try {
     // เพิ่มการ JOIN กับตาราง users เพื่อดึง u.name AS OrganizerName
     const [events] = await db.query(
-      `SELECT 
-        e.EventID, e.EventName, e.EventInfo, e.Location, 
-        e.StartDateTime, e.EndDateTime, e.ImagePath, u.name AS OrganizerName 
+      `SELECT
+        e.EventID, e.EventName, e.EventInfo, e.Location,
+        e.StartDateTime, e.EndDateTime, e.ImagePath, u.name AS OrganizerName
        FROM event e
        JOIN users u ON e.EventOrgID = u.id
-       WHERE e.Status = 'Approved' 
+       WHERE e.Status = 'Approved'
        ORDER BY e.StartDateTime ASC`
     );
     res.json(events);
@@ -264,9 +304,11 @@ app.get("/api/events/approved", authenticateJWT, requireRole("user", "admin"), a
   }
 });
 
+
 // ============= FEBE2: Organizer Create Event =============
 // 🧾 Multer Config (Upload Image)
 const fs = require("fs");
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -293,33 +335,47 @@ const upload = multer({
 });
 
 
+
+
+// ============= FEBE2: Organizer Create Event =============
 app.post("/api/events/create", authenticateJWT, requireRole("user"), upload.single("image"), async (req, res) => {
   try {
-    const { title, startDateTime, endDateTime, location, maxParticipant, maxStaff, eventInfo } = req.body;
+    const { title, startDateTime, endDateTime, location, maxParticipant, maxStaff, eventInfo, status } = req.body;
+
 
     if (!title || !startDateTime || !endDateTime || !location) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // =====================================================================
-    // === แก้จาก req.file.path เป็น `uploads/${req.file.filename}` ที่นี่ ===
-    // =====================================================================
+
+    // ตรวจสอบค่า status ที่ส่งมา ถ้าไม่มีให้ default เป็น 'Pending'
+    const finalStatus = status && ['Pending', 'Draft'].includes(status) ? status : 'Pending';
+
+
     const imagePath = req.file ? `uploads/${req.file.filename}` : null;
     const orgId = req.user.id;
 
+
     const [result] = await db.query(
-      `INSERT INTO event 
+      `INSERT INTO event
         (EventName, EventOrgID, StartDateTime, EndDateTime, MaxParticipant, MaxStaff, EventInfo, Location, Status, ImagePath)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)`,
-      [title, orgId, startDateTime, endDateTime, maxParticipant || null, maxStaff || null, eventInfo || null, location, imagePath]
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, orgId, startDateTime, endDateTime, maxParticipant || null, maxStaff || null, eventInfo || null, location, finalStatus, imagePath]
     );
 
-    res.status(201).json({ message: "✅ Event created and pending approval", eventId: result.insertId });
+
+    res.status(201).json({
+      message: `✅ Event saved as ${finalStatus}`,
+      eventId: result.insertId
+    });
+
+
   } catch (err) {
     console.error("Create Event Error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 // ==========================
 // 🧾 Get Events by Status
@@ -327,7 +383,8 @@ app.post("/api/events/create", authenticateJWT, requireRole("user"), upload.sing
 app.get("/api/events/status", authenticateJWT, requireRole("user"), async (req, res) => {
   try {
     const UserId = req.user.id; // ดึง ID ของ organizer ที่ล็อกอิน
-    const { status } = req.params;
+    const { status } = req.query;
+
 
     // ดึงข้อมูล event ตามสถานะของ organizer คนนี้
     const [events] = await db.query(
@@ -337,6 +394,7 @@ app.get("/api/events/status", authenticateJWT, requireRole("user"), async (req, 
       [UserId, status]
     );
 
+
     res.status(200).json({ events });
   } catch (err) {
     console.error("Get Events by Status Error:", err);
@@ -345,13 +403,15 @@ app.get("/api/events/status", authenticateJWT, requireRole("user"), async (req, 
 });
 
 
+
+
 // ============= FEBE2: Admin View & Approve Events =============
 app.get("/api/events/pending", authenticateJWT, requireRole("admin"), async (req, res) => {
   try {
     const [events] = await db.query(
-      `SELECT e.*, u.name AS OrganizerName 
-       FROM event e 
-       JOIN users u ON e.EventOrgID = u.id 
+      `SELECT e.*, u.name AS OrganizerName
+       FROM event e
+       JOIN users u ON e.EventOrgID = u.id
        WHERE e.Status = 'Pending'
        ORDER BY e.StartDateTime ASC`
     );
@@ -361,6 +421,7 @@ app.get("/api/events/pending", authenticateJWT, requireRole("admin"), async (req
     res.status(500).json({ message: "Failed to fetch pending events" });
   }
 });
+
 
 app.put("/api/events/approve/:id", authenticateJWT, requireRole("admin"), async (req, res) => {
   try {
@@ -374,9 +435,11 @@ app.put("/api/events/approve/:id", authenticateJWT, requireRole("admin"), async 
   }
 });
 
+
 // ===============================================
 // START: โค้ดที่ต้องเพิ่ม
 // ===============================================
+
 
 // Endpoint ใหม่: Admin ปฏิเสธ Event
 app.put("/api/events/reject/:id", authenticateJWT, requireRole("admin"), async (req, res) => {
@@ -392,24 +455,29 @@ app.put("/api/events/reject/:id", authenticateJWT, requireRole("admin"), async (
   }
 });
 
+
 // Endpoint ใหม่: Admin ดึง Events ตามสถานะ (Approved, Rejected, หรือทั้งหมด)
 app.get("/api/events/admin/all", authenticateJWT, requireRole("admin"), async (req, res) => {
     try {
         const { status } = req.query; // รับค่า status จาก query e.g., ?status=Approved
 
+
         let query = `
-            SELECT e.*, u.name AS OrganizerName 
-            FROM event e 
+            SELECT e.*, u.name AS OrganizerName
+            FROM event e
             JOIN users u ON e.EventOrgID = u.id
         `;
         const queryParams = [];
+
 
         if (status && ['Approved', 'Rejected', 'Pending'].includes(status)) {
             query += ' WHERE e.Status = ?';
             queryParams.push(status);
         }
 
+
         query += ' ORDER BY e.StartDateTime DESC';
+
 
         const [events] = await db.query(query, queryParams);
         res.json(events);
@@ -419,9 +487,12 @@ app.get("/api/events/admin/all", authenticateJWT, requireRole("admin"), async (r
     }
 });
 
+
 // ===============================================
 // END: โค้ดที่ต้องเพิ่ม
 // ===============================================
+
+
 
 
 // ==========================
