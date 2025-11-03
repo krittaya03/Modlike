@@ -148,6 +148,7 @@
     text-align: left;
     color: #939393;
 }
+
 .pass{
     width: 578px;
     height: 52px;
@@ -289,3 +290,24 @@
 }
 
 
+/* --- Add this code to override browser autofill styles --- */
+
+.use:-webkit-autofill,
+.use:-webkit-autofill:hover, 
+.use:-webkit-autofill:focus, 
+.use:-webkit-autofill:active  {
+    -webkit-box-shadow: 0 0 0 30px #F1E4D1 inset !important; /* เปลี่ยน background color */
+    -webkit-text-fill-color: #939393 !important; /* เปลี่ยนสีตัวอักษร */
+    font-family: 'Jost' !important; /* ตั้งค่า font ให้ตรงกัน */
+    font-size: 24px !important;
+}
+
+.pass:-webkit-autofill,
+.pass:-webkit-autofill:hover,
+.pass:-webkit-autofill:focus,
+.pass:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #F1E4D1 inset !important;
+    -webkit-text-fill-color: #939393 !important;
+    font-family: 'Jost' !important;
+    font-size: 24px !important;
+}

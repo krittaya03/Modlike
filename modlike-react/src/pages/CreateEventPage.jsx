@@ -152,7 +152,7 @@ const CreateEventPage = () => {
 
   // <-- LOGIC UPDATED
   const handleSubmit = async (buttonStatus) => {
-    const submitStatus = buttonStatus === 'submitted' ? 'Published' : 'Draft';
+    const submitStatus = buttonStatus === 'submitted' ? 'Pending' : 'Draft';
     
     if (!validate(buttonStatus)) {
       setPopupMessage("❌ Please fix the validation errors before proceeding.");
