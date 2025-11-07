@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import EventListPage1 from "./pages/Eventlistuser";
 import CreateEventPage from "./pages/CreateEventPage";
 import AdminEventlist from "./pages/AdminEventlist";
+import EditEventPage from "./pages/EditEventPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -39,6 +40,16 @@ function App() {
           element={
             <ProtectedRoute>
               <CreateEventPage />
+            </ProtectedRoute>
+          }
+        />
+
+                {/* <-- เพิ่ม Route ใหม่นี้ */}
+        <Route
+          path="/events/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditEventPage />
             </ProtectedRoute>
           }
         />

@@ -1,0 +1,234 @@
+/* EditEventPage.module.css */
+
+/* ---------- Theme tokens ---------- */
+:root {
+  --navy: #162660;
+  --beige: #F1E4D1;
+  --cream: #F6EFE6;
+  --line: #D9C9AF;
+  --accent: #D0E6FD;
+  --danger: #dc3545;
+  --text: #1d2340;
+  --radius-xl: 24px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --shadow: 0 8px 24px rgba(0,0,0,.08);
+  --shadow-soft: 0 4px 12px rgba(0,0,0,.06);
+}
+
+/* ให้เว้นซ้ายเท่ากับ sidebar */
+.page {
+  font-family: 'Jost', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  margin-left: 112px;
+  padding: 32px 36px 48px;
+  color: var(--text);
+  background: #fff;
+  min-height: 100vh;
+}
+
+/* หัวข้อใหญ่ "Edit Event Info." */
+.header {
+  font-size: clamp(28px, 2.8vw, 48px);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 20px;
+}
+
+/* กริดซ้าย-ขวา */
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+/* คอลัมน์ซ้าย */
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* คอลัมน์ขวา (การ์ดภาพ + ปฏิทิน) */
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* แถบหัวข้อส่วน (Title, Description, Start/End Time, Location) */
+.sectionTitle {
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  color: var(--navy);
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/* กล่องฟิลด์ */
+.formGroup {
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+.label {
+  display: none; /* เราใช้แถบ sectionTitle แทน */
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--text);
+  background: transparent;
+}
+
+.textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+/* แถวรวมหลายฟิลด์แนวนอน */
+.row {
+  display: flex;
+  gap: 14px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.inputBox {
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+.inputBox:focus-within,
+.formGroup:focus-within {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(22,38,96,.08);
+}
+
+/* การ์ดรูปภาพทางขวา */
+.imageCard {
+  background: var(--beige);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.imageBox {
+  width: 100%;
+  aspect-ratio: 4/5;          /* ใกล้เคียงกับภาพตัวอย่าง */
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.imageBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* การ์ดปฏิทิน */
+.calendarCard {
+  background: var(--beige);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+/* ฟุตเตอร์ + ปุ่มบันทึก */
+.footer {
+  margin-top: 22px;
+  background: var(--cream);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  box-shadow: var(--shadow-soft);
+}
+
+.saveBtn {
+  min-width: 140px;
+  height: 40px;
+  padding: 8px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .06s ease, background .2s ease, box-shadow .2s ease;
+  box-shadow: 0 6px 16px rgba(22,38,96,.25);
+}
+
+.saveBtn:hover { background: #2973d4; }
+.saveBtn:active { transform: translateY(1px); }
+
+/* Toast “The event have been edited!” */
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  background: var(--navy);
+  color: #fff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  min-width: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: var(--shadow);
+  z-index: 50;
+}
+
+.toastAction {
+  background: #fff;
+  color: var(--navy);
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ปุ่มย่อย (ถ้าต้องใช้) */
+.btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnOutline {
+  background: #fff;
+  color: var(--navy);
+  border: 2px solid var(--navy);
+}
+.btnDanger {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: 1fr; }
+  .right { order: -1; }            /* ให้ภาพ/ปฏิทินขึ้นก่อนบนมือถือ */
+  .toast { min-width: 80%; }
+}
