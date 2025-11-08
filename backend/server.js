@@ -403,8 +403,6 @@ app.get("/api/events/status", authenticateJWT, requireRole("user"), async (req, 
 });
 
 
-
-
 // ============= FEBE2: Admin View & Approve Events =============
 app.get("/api/events/pending", authenticateJWT, requireRole("admin"), async (req, res) => {
   try {
@@ -435,6 +433,24 @@ app.put("/api/events/approve/:id", authenticateJWT, requireRole("admin"), async 
   }
 });
 
+// ============= BE3 : ดึงรายละเอียด event เดี่ยว (ใช้ตอนเปิดหน้าแก้ไข) ===========
+// ดึงอีเวนต์เดียวสำหรับ Edit/Details
+app.get('/api/events/:id', authenticateJWT, async (req, res) => {
+  const eventId = req.params.id;
+  const userId  = req.user.id;
+  const role    = req.user.role;
+
+  const [rows] = await db.query(
+    `SELECT EventID, EventName, StartDateTime, EndDateTime,
+            Location, EventInfo, MaxParticipant, MaxStaff, Status, ImagePath, EventOrgID
+     FROM event
+     WHERE EventID = ? AND (EventOrgID = ? OR ? = 'admin')`,
+    [eventId, userId, role]
+  );
+
+  if (!rows.length) return res.status(404).json({ message: 'Event not found or unauthorized' });
+  res.json(rows[0]);
+});
 
 // ===============================================
 // START: โค้ดที่ต้องเพิ่ม
@@ -492,7 +508,51 @@ app.get("/api/events/admin/all", authenticateJWT, requireRole("admin"), async (r
 // END: โค้ดที่ต้องเพิ่ม
 // ===============================================
 
+// ============= FEBE3: Organizer Cancel Event =============
+app.put("/api/events/cancel/:id", authenticateJWT, requireRole("user"), async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const userId = req.user.id;
 
+    const [result] = await db.query(
+      `UPDATE event SET Status='Cancelled' WHERE EventID=? AND EventOrgID=?`,
+      [eventId, userId]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Event not found or unauthorized" });
+
+    res.json({ message: "❌ Event cancelled successfully" });
+  } catch (err) {
+    console.error("Cancel Event Error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// ============= FEBE3: Organizer Fix & Resubmit Event =============
+app.put("/api/events/resubmit/:id", authenticateJWT, requireRole("user"), async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const userId = req.user.id;
+    const { title, startDateTime, endDateTime, location, eventInfo, maxParticipant, maxStaff } = req.body;
+
+    const [result] = await db.query(
+      `UPDATE event 
+       SET EventName=?, StartDateTime=?, EndDateTime=?, Location=?, EventInfo=?, 
+           MaxParticipant=?, MaxStaff=?, Status='Pending' 
+       WHERE EventID=? AND EventOrgID=?`,
+      [title, startDateTime, endDateTime, location, eventInfo, maxParticipant, maxStaff, eventId, userId]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Event not found or unauthorized" });
+
+    res.json({ message: "🔄 Event resubmitted for approval" });
+  } catch (err) {
+    console.error("Resubmit Event Error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 
 // ==========================
