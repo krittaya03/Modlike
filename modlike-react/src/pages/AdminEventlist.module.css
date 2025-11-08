@@ -9,6 +9,7 @@
     width: 100%;
     height: 100vh;
     background-color: #fdfdfd; /* สีพื้นหลังอ่อนๆ */
+    font-family: 'Jost';
 }
 
 .main-content-adlist {
@@ -298,6 +299,7 @@
     padding: 8px 25px;
     border-radius: 20px;
     font-size: 0.9rem;
+    font-family: 'Jost';
     cursor: pointer;
     transition: background-color 0.2s;
 }
@@ -341,6 +343,7 @@
     color: white;
     padding: 8px 15px;
     margin-top: 0;
+    font-family: 'Jost';
 }
 
 .loci {
@@ -380,6 +383,7 @@
 
 .approved-details, .rejected-details {
     flex-grow: 1;
+    font-family: 'Jost';
 }
 
 .status-tag {
@@ -416,6 +420,7 @@
     padding: 8px 25px;
     border-radius: 20px;
     font-size: 0.9rem;
+    font-family: 'Jost';
     cursor: pointer;
     transition: background-color 0.2s;
 }

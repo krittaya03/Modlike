@@ -3,7 +3,7 @@
     padding: 0;
     max-height: 100%;
     transition: margin-left 0.3s ease;
-    
+    font-family: 'Jost';    
 }
 /* =================================== */
 /* === Styles for Tab Navigation === */
@@ -213,10 +213,11 @@
 .action-btn {
     padding: 10px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 35px;
     cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-family: 'Jost';
+    font-size: 0.9rem;
+    /* font-weight: 600; */
     margin-left: 10px; 
     transition: background-color 0.2s;
     color: white; 
@@ -232,19 +233,19 @@
 
 /* Style สำหรับปุ่ม Cancel (สีแดง) */
 .cancel-btn {
-    background-color: #dc3545; 
+    background-color: #a80202; 
 }
 .cancel-btn:hover {
-    background-color: #c82333;
+    background-color: #ee4455;
 }
 
 /* Style สำหรับปุ่ม Fix / Edit (สีเหลือง) */
 .fix-btn {
-    background-color: #ffc107; 
-    color: #212529; 
+    background-color: #162660; 
+    color: #ffffff; 
 }
 .fix-btn:hover {
-    background-color: #e0a800;
+    background-color: #0056b3;
 }
 
 /* === Styles for Cancelled Stamp === */
@@ -252,7 +253,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) rotate(-30deg); /* หมุน 30 องศาและจัดกึ่งกลาง */
+    transform: translate(-50%, -50%) rotate(-15deg); /* หมุน 30 องศาและจัดกึ่งกลาง */
     padding: 10px 20px;
     border: 4px solid #dc3545; /* สีแดง */
     color: #dc3545;

@@ -2,6 +2,7 @@
 
 .dashboardContainer {
     width: 100%;
+    font-family: 'Jost';
 }
 
 /* ==================== HEADER SECTION ==================== */
@@ -139,7 +140,7 @@
     cursor: pointer;
     font-weight: 700;
     font-size: 14px;
-    font-family: 'Jost', sans-serif;
+    font-family: 'Jost';
     transition: background-color 0.2s;
     margin-top: auto;
     align-self: flex-end;

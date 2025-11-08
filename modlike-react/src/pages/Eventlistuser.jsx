@@ -119,8 +119,15 @@ const EventListPage1 = () => {
     }
   };
 
-  const handleEdit = (eventId) => {
-    navigate(`/events/edit/${eventId}`);
+  // ✅ [STEP 1] แก้ไข handleEdit ให้รับ status และเปลี่ยนเส้นทางสำหรับ Draft
+  const handleEdit = (eventId, status) => {
+    if (status === "Draft") {
+      // ถ้าเป็น Draft ให้ไปที่หน้า create พร้อมส่ง ID ไปเป็น query string
+      navigate(`/create-event?editId=${eventId}`);
+    } else {
+      // สถานะอื่นๆ (เช่น Pending, Rejected) ไปที่หน้า edit แบบเดิม
+      navigate(`/events/edit/${eventId}`);
+    }
   };
 
   return (
@@ -199,13 +206,22 @@ const EventListPage1 = () => {
 
                       {activeTab === "myEvent" ? (
                         <div className={styles["management-buttons"]}>
+                          {/* ✅ [STEP 2] ส่ง status เข้าไปใน onClick ของปุ่ม Edit */}
                           {status === "Draft" && (
-                            <button
-                              onClick={() => handleEdit(event.EventID)}
-                              className={`${styles["action-btn"]} ${styles["fix-btn"]}`}
-                            >
-                              Edit
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleEdit(event.EventID, status)}
+                                className={`${styles["action-btn"]} ${styles["fix-btn"]}`}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                  onClick={() => handleCancel(event.EventID)}
+                                  className={`${styles["action-btn"]} ${styles["cancel-btn"]}`}
+                              >
+                                  Cancel
+                              </button>
+                            </>
                           )}
 
                           {status === "Pending" && (
@@ -225,21 +241,21 @@ const EventListPage1 = () => {
                             </>
                           )}
 
-                          {status === "Rejected" && (
+                          {/* {status === "Rejected" && (
                             <button
                               onClick={() => handleEdit(event.EventID)}
                               className={`${styles["action-btn"]} ${styles["fix-btn"]}`}
                             >
-                              Fix / Edit
+                              Edit
                             </button>
-                          )}
+                          )} */}
 
                           {(status === "Approved" || status === "Cancelled") && (
                             <button
                               onClick={() => navigate(`/events/${event.EventID}`)}
                               className={styles["details-btnlist1"]}
                             >
-                              View Details
+                              Details
                             </button>
                           )}
                         </div>
