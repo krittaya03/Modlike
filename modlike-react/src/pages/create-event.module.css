@@ -17,8 +17,8 @@
 }
 
 .form-title {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 40px;
+  font-weight: 600;
   color: #162660; 
   margin-top: 0;
   margin-bottom: 24px;
@@ -163,7 +163,7 @@ textarea {
 .btn-secondary {
   padding: 10px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 30px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;

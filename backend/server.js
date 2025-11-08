@@ -13,6 +13,7 @@ const mysql = require("mysql2/promise");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs"); // ✅ [เพิ่ม] Import 'fs' สำหรับจัดการไฟล์/โฟลเดอร์
 
 
 // LOAD .env CONFIG
@@ -298,7 +299,8 @@ app.get("/api/events/approved", authenticateJWT, requireRole("user", "admin"), a
        ORDER BY e.StartDateTime ASC`
     );
     res.json(events);
-  } catch (err) {
+  } catch (err)
+ {
     console.error("Fetch Approved Events Error:", err);
     res.status(500).json({ message: "Failed to fetch approved events" });
   }
@@ -307,9 +309,6 @@ app.get("/api/events/approved", authenticateJWT, requireRole("user", "admin"), a
 
 // ============= FEBE2: Organizer Create Event =============
 // 🧾 Multer Config (Upload Image)
-const fs = require("fs");
-
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, "uploads");
@@ -377,21 +376,63 @@ app.post("/api/events/create", authenticateJWT, requireRole("user"), upload.sing
 });
 
 
+// ✅ [เพิ่ม] Endpoint สำหรับอัปเดต Event (สำคัญที่สุดสำหรับการแก้ไข)
+app.put("/api/events/update/:id", authenticateJWT, requireRole("user"), upload.single("image"), async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const orgId = req.user.id; // ID ของผู้ใช้ที่กำลังล็อกอิน
+    const { title, startDateTime, endDateTime, location, maxParticipant, maxStaff, eventInfo, status } = req.body;
+
+    if (!title || !startDateTime || !endDateTime || !location || !status) {
+      return res.status(400).json({ message: "Missing required fields for update" });
+    }
+
+    // เริ่มสร้าง query สำหรับอัปเดต
+    let sql = `UPDATE event SET EventName=?, StartDateTime=?, EndDateTime=?, Location=?, MaxParticipant=?, MaxStaff=?, EventInfo=?, Status=?`;
+    const params = [title, startDateTime, endDateTime, location, maxParticipant || null, maxStaff || null, eventInfo || null, status];
+
+    // ถ้ามีการอัปโหลดไฟล์รูปภาพใหม่ ให้เพิ่มการอัปเดต ImagePath เข้าไปใน query ด้วย
+    if (req.file) {
+      sql += `, ImagePath=?`;
+      params.push(`uploads/${req.file.filename}`);
+      // หมายเหตุ: อาจต้องเพิ่ม logic ลบไฟล์รูปเก่าที่นี่
+    }
+
+    // เพิ่มเงื่อนไข WHERE เพื่อให้แน่ใจว่าผู้ใช้เป็นเจ้าของ Event นี้เท่านั้น
+    sql += ` WHERE EventID=? AND EventOrgID=?`;
+    params.push(eventId, orgId);
+
+    const [result] = await db.query(sql, params);
+
+    // ตรวจสอบว่ามีการอัปเดตแถวข้อมูลหรือไม่
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Event not found or you don't have permission to edit it." });
+    }
+
+    res.status(200).json({ message: "✅ Event updated successfully!" });
+
+  } catch (err) {
+    console.error("Update Event Error:", err);
+    res.status(500).json({ message: "Internal server error during event update." });
+  }
+});
+
+
 // ==========================
 // 🧾 Get Events by Status
 // ==========================
 app.get("/api/events/status", authenticateJWT, requireRole("user"), async (req, res) => {
   try {
     const UserId = req.user.id; // ดึง ID ของ organizer ที่ล็อกอิน
-    const { status } = req.query;
-
-
-    // ดึงข้อมูล event ตามสถานะของ organizer คนนี้
+    
+    // ✅ [แก้ไข] ลบ const { status } = req.query; ที่ไม่ได้ใช้งานออก
+    // ✅ [แก้ไข] แก้ไข SQL ให้ดึงทุกสถานะที่ต้องการสำหรับหน้า "My Event" และลบ parameter ที่ไม่ได้ใช้ออก
     const [events] = await db.query(
       `SELECT EventID, EventName, StartDateTime, EndDateTime, Location, Status, ImagePath
        FROM event
-       WHERE EventOrgID = ? AND Status IN ('Draft','Pending','Approved','Rejected')`,
-      [UserId, status]
+       WHERE EventOrgID = ? AND Status IN ('Draft','Pending','Approved','Rejected', 'Cancelled')
+       ORDER BY FIELD(Status, 'Draft', 'Pending', 'Rejected', 'Approved', 'Cancelled'), StartDateTime DESC`,
+      [UserId] // เอา status ที่ไม่ได้ใช้ออก
     );
 
 
@@ -440,20 +481,32 @@ app.get('/api/events/:id', authenticateJWT, async (req, res) => {
   const userId  = req.user.id;
   const role    = req.user.role;
 
+  // Query เดิมทำงานได้ดีแล้ว ไม่ต้องแก้
   const [rows] = await db.query(
-    `SELECT EventID, EventName, StartDateTime, EndDateTime,
-            Location, EventInfo, MaxParticipant, MaxStaff, Status, ImagePath, EventOrgID
+    // ✅ [แก้ไข] เพิ่มการ SELECT ทุก field เพื่อให้ข้อมูลครบถ้วนสำหรับฟอร์มแก้ไข
+    `SELECT *
      FROM event
-     WHERE EventID = ? AND (EventOrgID = ? OR ? = 'admin')`,
-    [eventId, userId, role]
+     WHERE EventID = ?`,
+    [eventId]
   );
 
-  if (!rows.length) return res.status(404).json({ message: 'Event not found or unauthorized' });
-  res.json(rows[0]);
+  if (!rows.length) {
+    return res.status(404).json({ message: 'Event not found' });
+  }
+
+  const event = rows[0];
+
+  // ย้ายการตรวจสอบสิทธิ์มาทำที่นี่เพื่อความชัดเจน
+  if (event.EventOrgID !== userId && role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: You are not authorized to view this event' });
+  }
+
+  // ✅ [แก้ไข] แก้ไขการส่งข้อมูลกลับให้เป็น Object ที่มี key 'event' เพื่อให้ Frontend ทำงานได้ถูกต้อง
+  res.json({ event: event });
 });
 
 // ===============================================
-// START: โค้ดที่ต้องเพิ่ม
+// START: โค้ดที่ต้องเพิ่ม (โค้ดเดิมของคุณ)
 // ===============================================
 
 
@@ -530,6 +583,7 @@ app.put("/api/events/cancel/:id", authenticateJWT, requireRole("user"), async (r
 });
 
 // ============= FEBE3: Organizer Fix & Resubmit Event =============
+// หมายเหตุ: Endpoint นี้อาจไม่จำเป็นแล้ว ถ้าใช้ /update/:id แทน
 app.put("/api/events/resubmit/:id", authenticateJWT, requireRole("user"), async (req, res) => {
   try {
     const eventId = req.params.id;

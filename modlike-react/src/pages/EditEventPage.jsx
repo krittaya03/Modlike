@@ -1,58 +1,111 @@
-import React, { useEffect, useState } from "react";
+// src/pages/EditEventPage.jsx (ฉบับปรับปรุงใหม่)
+
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import styles from "./EditEventPage.module.css";
+// ✅ 1. เปลี่ยนไปใช้ CSS Module ที่เราคัดลอกมาใหม่
+import styles from "./EditEventPage.module.css"; 
+import Sidebar from "../components/Sidebar";
 
 export default function EditEventPage() {
   const { id } = useParams();
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
-  // แปลงเวลา DB <-> input(datetime-local)
-  const toInput = (s) => (s ? s.replace(" ", "T").slice(0, 16) : "");
-  const toMySQL = (s) => (s ? s.replace("T", " ") + ":00" : null);
-
+  // ✅ 2. ปรับโครงสร้าง State ให้เหมือนกับ CreateEventPage
   const [form, setForm] = useState({
-    EventName: "",
-    EventInfo: "",
-    StartDateTime: "",
-    EndDateTime: "",
-    Location: "",
-    MaxParticipant: 0,
-    MaxStaff: 0,
-    ImagePath: "",
+    title: "",
+    description: "",
+    maxStaff: "",
+    maxParticipant: "",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+    location: "",
   });
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null); // สำหรับการอัปโหลดรูปใหม่ (ถ้าต้องการ)
+  const [popupMessage, setPopupMessage] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const fileInputRef = useRef(null);
 
   const api = import.meta.env.VITE_API_BASE_URL;
-  const fileBase = import.meta.env.VITE_SERVER_BASE_URL || "";
+  const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
   const token = localStorage.getItem("token");
 
+  // ✅ 3. ปรับ useEffect ให้ดึงข้อมูลและตั้งค่า State ในรูปแบบใหม่
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) {
+        navigate('/login');
+        return;
+      }
       try {
         const res = await fetch(`${api}/events/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch event");
+        
         const data = await res.json();
+        const event = data.event; // สมมติว่า API คืนค่าเป็น { event: {...} }
+
+        // Helper function แปลงเวลา
+        const formatDateTimeForInput = (dateTimeString) => {
+          if (!dateTimeString) return { date: '', time: '' };
+          const dateObj = new Date(dateTimeString);
+          const date = dateObj.toISOString().split('T')[0];
+          const time = dateObj.toTimeString().slice(0, 5);
+          return { date, time };
+        };
+
+        const { date: startDate, time: startTime } = formatDateTimeForInput(event.StartDateTime);
+        const { date: endDate, time: endTime } = formatDateTimeForInput(event.EndDateTime);
+
+        // ✅ 4. แก้ปัญหา Controlled/Uncontrolled โดยใช้ || ''
         setForm({
-          ...data,
-          StartDateTime: toInput(data.StartDateTime),
-          EndDateTime: toInput(data.EndDateTime),
+          title: event.EventName || "",
+          description: event.EventInfo || "",
+          maxStaff: event.MaxStaff || "",
+          maxParticipant: event.MaxParticipant || "",
+          startDate,
+          startTime,
+          endDate,
+          endTime,
+          location: event.Location || "",
         });
+
+        if (event.ImagePath) {
+          setImagePreview(`${serverBaseUrl}/${event.ImagePath}`);
+        }
       } catch (e) {
         console.error(e);
-        alert("Error loading event data");
+        setPopupMessage("❌ Error loading event data");
+        setShowPopup(true);
       }
     };
     fetchData();
-  }, [api, id, token]);
+  }, [api, id, token, navigate, serverBaseUrl]);
 
-  const onChange = (e) => {
-    const { name, value, type } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "number" ? Number(value) : value }));
+  // ✅ 5. นำ Event Handlers จาก CreateEventPage มาใช้
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+      setImageFile(file); // เก็บไฟล์ใหม่ไว้
+    }
+  };
+
+  const handleImageUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   const onResubmit = async () => {
+    // Note: Add validation logic here if needed, similar to CreateEventPage
     try {
+      // ใช้ FormData เพื่อรองรับการอัปเดตไฟล์ภาพในอนาคต (ตอนนี้ยังไม่ได้ส่ง)
       const res = await fetch(`${api}/events/resubmit/${id}`, {
         method: "PUT",
         headers: {
@@ -60,148 +113,119 @@ export default function EditEventPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          title: form.EventName,
-          eventInfo: form.EventInfo,
-          location: form.Location,
-          startDateTime: toMySQL(form.StartDateTime),
-          endDateTime: toMySQL(form.EndDateTime),
-          maxParticipant: form.MaxParticipant,
-          maxStaff: form.MaxStaff,
+          title: form.title,
+          eventInfo: form.description,
+          location: form.location,
+          startDateTime: `${form.startDate} ${form.startTime}:00`,
+          endDateTime: `${form.endDate} ${form.endTime}:00`,
+          maxParticipant: form.maxParticipant || 0,
+          maxStaff: form.maxStaff || 0,
         }),
       });
-      if (!res.ok) throw new Error("resubmit failed");
-      alert("✅ The event has been edited and resubmitted!");
-      nav("/eventlist1");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Resubmit failed");
+      }
+      
+      setPopupMessage("✅ The event has been edited and resubmitted!");
+      setShowPopup(true);
+      setTimeout(() => navigate("/eventlist1"), 2000);
+
     } catch (e) {
       console.error(e);
-      alert("❌ Failed to resubmit event");
+      setPopupMessage(`❌ Failed to resubmit event: ${e.message}`);
+      setShowPopup(true);
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  // ✅ 6. ใช้โครงสร้าง JSX เดียวกันกับ CreateEventPage
   return (
-    <div className={styles.page}>
-      <h1 className={styles.header}>Edit Event Info.</h1>
+    <div className={styles['app-container']}>
+      <Sidebar handleLogout={handleLogout} />
 
-      <div className={styles.grid}>
-        {/* LEFT column */}
-        <div className={styles.left}>
-          <div className={styles.sectionTitle}>Title</div>
-          <div className={styles.formGroup}>
-            <input
-              className={styles.input}
-              name="EventName"
-              value={form.EventName}
-              onChange={onChange}
-              placeholder="Event title"
-            />
-          </div>
+      <div className={styles['main-content-create']}>
+        {/* เปลี่ยน Title ให้เหมาะสม */}
+        <h1 className={styles['form-title']}>Edit Event Information</h1>
 
-          <div className={styles.sectionTitle}>Description</div>
-          <div className={styles.formGroup}>
-            <textarea
-              className={styles.textarea}
-              name="EventInfo"
-              value={form.EventInfo}
-              onChange={onChange}
-              placeholder="Describe your event..."
-            />
-          </div>
-
-          {/* แถวเวลา: แต่ละคอลัมน์มีหัวข้อของตัวเอง */}
-          <div className={styles.twoCol}>
-            <div>
-              <div className={styles.sectionTitle}>Start Time</div>
-              <div className={styles.inputBox}>
-                <input
-                  className={styles.input}
-                  type="datetime-local"
-                  name="StartDateTime"
-                  value={form.StartDateTime}
-                  onChange={onChange}
-                />
+        <div className={styles['form-container']}>
+          <div className={styles['form-row-top']}>
+            <div className={styles['form-col-left']}>
+              <div className={styles['form-group']}>
+                <label>Title</label>
+                <input type="text" name="title" value={form.title} onChange={handleChange} placeholder="Event Name" />
+              </div>
+              <div className={styles['form-group']}>
+                <label>Description</label>
+                <textarea name="description" value={form.description} onChange={handleChange} placeholder="Event Details" rows={6} />
               </div>
             </div>
-            <div>
-              <div className={styles.sectionTitle}>End Time</div>
-              <div className={styles.inputBox}>
-                <input
-                  className={styles.input}
-                  type="datetime-local"
-                  name="EndDateTime"
-                  value={form.EndDateTime}
-                  onChange={onChange}
-                />
+            <div className={styles['form-col-right']}>
+              <div className={`${styles['form-group']} ${styles['image-upload-group']}`}>
+                {/* หมายเหตุ: การแก้ไขรูปภาพอาจต้องใช้ Endpoint แยก ถ้า Backend ไม่รองรับ */}
+                <input type="file" accept="image/jpeg, image/png" onChange={handleImageChange} ref={fileInputRef} style={{ display: "none" }} />
+                <div className={styles['image-upload-box']} onClick={handleImageUploadClick}>
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Event preview" />
+                  ) : (
+                    <div className={styles['image-upload-placeholder']}><span>No Image Available</span></div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className={styles.sectionTitle}>Location</div>
-          <div className={styles.formGroup}>
-            <input
-              className={styles.input}
-              name="Location"
-              value={form.Location}
-              onChange={onChange}
-              placeholder="Building / Room / Floor"
-            />
-          </div>
-
-          <div className={styles.twoCol}>
-            <div>
-              <div className={styles.sectionTitle}>Max Participant</div>
-              <div className={styles.inputBox}>
-                <input
-                  className={styles.input}
-                  type="number"
-                  min={0}
-                  name="MaxParticipant"
-                  value={form.MaxParticipant}
-                  onChange={onChange}
-                />
+          <div className={styles['form-row-bottom']}>
+            <div className={styles['form-group']}>
+              <label>Maximum number of staff</label>
+              <input type="number" name="maxStaff" value={form.maxStaff} onChange={handleChange} min="0" />
+            </div>
+            <div className={styles['form-group']}>
+              <label>Maximum number of participants</label>
+              <input type="number" name="maxParticipant" value={form.maxParticipant} onChange={handleChange} min="0" />
+            </div>
+            <div className={styles['form-group']}>
+              <label>Start Time</label>
+              <div className={styles['time-inputs']}>
+                <input type="date" name="startDate" value={form.startDate} onChange={handleChange} />
+                <input type="time" name="startTime" value={form.startTime} onChange={handleChange} />
               </div>
             </div>
-            <div>
-              <div className={styles.sectionTitle}>Max Staff</div>
-              <div className={styles.inputBox}>
-                <input
-                  className={styles.input}
-                  type="number"
-                  min={0}
-                  name="MaxStaff"
-                  value={form.MaxStaff}
-                  onChange={onChange}
-                />
+            <div className={styles['form-group']}>
+              <label>End Time</label>
+              <div className={styles['time-inputs']}>
+                <input type="date" name="endDate" value={form.endDate} onChange={handleChange} />
+                <input type="time" name="endTime" value={form.endTime} onChange={handleChange} />
               </div>
+            </div>
+            <div className={styles['form-group']}>
+              <label>Location</label>
+              <input type="text" name="location" value={form.location} onChange={handleChange} placeholder="Event Location" />
             </div>
           </div>
         </div>
 
-        {/* RIGHT column (ภาพ + ปฏิทิน placeholder) */}
-        <div className={styles.right}>
-          <div className={styles.imageCard}>
-            <div className={styles.imageBox}>
-              {form.ImagePath ? (
-                <img src={`${fileBase}/${form.ImagePath}`} alt="event" />
-              ) : (
-                <img
-                  src="https://via.placeholder.com/600x750?text=Event+Image"
-                  alt="placeholder"
-                />
-              )}
-            </div>
-          </div>
-
-          <div className={styles.calendarCard}>
-            <div style={{ opacity: 0.6 }}>Calendar here</div>
-          </div>
+        {/* เปลี่ยนชื่อปุ่มให้สื่อความหมาย */}
+        <div className={styles['form-footer']}>
+          <button onClick={() => navigate('/eventlist1')} className={styles['btn-secondary']}>Cancel</button>
+          <button onClick={onResubmit} className={styles['btn-primary']}>Save Edit</button>
         </div>
       </div>
 
-      <div className={styles.footer}>
-        <button className={styles.saveBtn} onClick={onResubmit}>
-          Save Edit
-        </button>
-      </div>
+      {/* Popup ที่ยกมาจาก CreateEventPage */}
+      {showPopup && (
+        <div className={styles['popup-overlay']}>
+          <div className={styles['popup-box']}>
+            <p>{popupMessage}</p>
+            <button onClick={() => setShowPopup(false)}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
