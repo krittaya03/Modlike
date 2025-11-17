@@ -9,6 +9,8 @@ import EventListPage1 from "./pages/Eventlistuser";
 import CreateEventPage from "./pages/CreateEventPage";
 import AdminEventlist from "./pages/AdminEventlist";
 import EditEventPage from "./pages/EditEventPage";
+import EnrollPage from "./pages/Eventdetailsforenroll";
+
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -71,6 +73,17 @@ function App() {
             </AdminProtectedRoute>
           }
         />
+
+        <Route
+          path="/eventenroll/:eventId"
+          element={
+            <ProtectedRoute>
+              <EnrollPage/>
+            </ProtectedRoute>
+          }
+        />
+
+        
 
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>

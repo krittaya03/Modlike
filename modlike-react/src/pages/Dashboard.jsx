@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './dashboard.module.css'; // <-- 1. เปลี่ยน Import
+import { Link } from 'react-router-dom';
 
 // --- Import รูปภาพ (กรุณาตรวจสอบ Path ให้ถูกต้อง) ---
 import dayi from '../assets/images/today.png';
@@ -31,6 +32,17 @@ const Dashboard = () => {
     // ===============================================================
     // END: เพิ่ม State
     // ===============================================================
+
+    //16-11-25
+    // ===============================================================
+    // START: เพิ่ม State สำหรับเก็บข้อมูล Event ที่ User ลงทะเบียนไว้
+    // ===============================================================
+    const [enrolledEvents, setEnrolledEvents] = useState([]);
+    const [scheduleLoading, setScheduleLoading] = useState(true);
+    // ===============================================================
+    // END: เพิ่ม State
+    // ===============================================================
+
 
     useEffect(() => {
         const handleAuth = async () => {
@@ -103,6 +115,42 @@ const Dashboard = () => {
     // ===============================================================
 
 
+    // ===============================================================
+    // START: เพิ่ม useEffect ใหม่สำหรับดึงข้อมูล Enrolled Events (16-11-25)
+    // ===============================================================
+    useEffect(() => {
+        // จะเริ่มทำงานต่อเมื่อมีข้อมูล user แล้วเท่านั้น
+        if (!user) return;
+
+        const fetchEnrolledEvents = async () => {
+            setScheduleLoading(true);
+            const token = localStorage.getItem('token');
+            try {
+                // เรียก API endpoint ใหม่ที่เราสร้างไว้
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/enrolled-events`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch enrolled events');
+                }
+                const data = await response.json();
+                setEnrolledEvents(data); // เก็บข้อมูล event ที่ลงทะเบียนไว้ใน state
+            } catch (error) {
+                console.error("Fetch Enrolled Events Error:", error);
+                setEnrolledEvents([]);
+            } finally {
+                setScheduleLoading(false);
+            }
+        };
+
+        fetchEnrolledEvents();
+    }, [user]); // ให้ useEffect นี้ทำงานใหม่ทุกครั้งที่ข้อมูล user เปลี่ยน (ซึ่งคือตอน login สำเร็จ)
+    // ===============================================================
+    // END: เพิ่ม useEffect
+    // ===============================================================
+
+
+
     useEffect(() => {
         const generateDates = (daysToShow = 30) => {
             const today = new Date();
@@ -134,7 +182,21 @@ const Dashboard = () => {
     if (loading) return <div className={styles.loadingContainer}>Loading...</div>;
     if (!user) return <div className={styles.loadingContainer}>Could not load user data. Redirecting...</div>;
 
-    // <-- 2. เริ่มเปลี่ยน className ทั้งหมด -->
+    // --- Helper Function สำหรับจัดรูปแบบเวลา --- 16-11-25
+    const formatTime = (dateTimeString) => {
+        if (!dateTimeString) return 'N/A';
+        const date = new Date(dateTimeString);
+        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+    // --- กรองกิจกรรมที่ลงทะเบียนไว้ให้ตรงกับวันที่เลือก --- 16-11-25
+    const filteredSchedule = enrolledEvents.filter(event => {
+        // เปรียบเทียบเฉพาะส่วน 'YYYY-MM-DD' ของวันที่
+        if (!activeDate || !event.StartDateTime) return false;
+        return event.StartDateTime.startsWith(activeDate);
+    });
+
+
     return (
       <div className={styles.dashboardContainer}>
         
@@ -184,24 +246,27 @@ const Dashboard = () => {
                             {/* แสดงข้อมูล Event */}
                             <p className={styles.eventDescription}>{event.EventInfo}</p>
                             
-                            <button className={styles.detailsBtn}>Details</button>
+                            {/* <button className={styles.detailsBtn}>Details</button> */}
+                            <Link to={`/eventenroll/${event.EventID}`} className={`${styles.detailsBtn} nostyle-link`}>
+                            Details
+                            </Link>
                         </div>
                     </div>
                 ))}
                 {/* --- END: แสดงผล Event Cards --- */}
                 
                 {/* การ์ด "More" ที่เป็นลิงก์ยังคงอยู่เหมือนเดิม */}
-                <a href="#" className={styles.moreCard}>
+                <Link to="/eventlist1" className={styles.moreCard}>
                     <img src={arrowi} alt="More Events" />
                     <span>More</span>
-                </a>
+                </Link>
             </div>
         </section>
 
         <main className={styles.mainContent}>
             <div className={styles.scheduleHeader}>
                 <h2 className={styles.mysche}>My schedule</h2>
-                <h2 className={styles.view}>View all</h2>
+                <Link to="/eventlist1" className={styles.view}>View all</Link>
             </div>
 
             <div className={styles.scheduleLayout}>
@@ -213,17 +278,44 @@ const Dashboard = () => {
                         </div>
                     ))}
                 </div>
-                <div className={styles.scheduleCard}>
-                    <div className={styles.timeBlock}>
-                        <span>08.30</span>
-                        <span>12.30</span>
-                    </div>
-                    <div className={styles.scheduleDetails}>
-                        <h3>Sustainability Expo 2025</h3>
-                        <p><img src={loci} alt="location icon" /> N16 Learning Exchance Building Floor: 1st floor</p>
-                        <button className={styles.detailsBtn}>Details</button>
-                    </div>
-                </div>
+                {/* =============================================================== */}
+                {/* START: แก้ไขส่วนแสดงผล Schedule Card ให้เป็นแบบ Dynamic       (16-11-25)   */}
+                {/* =============================================================== */}
+                <div className={styles.scheduleListContainer}>
+                    {scheduleLoading ? (
+                        <div className={styles.scheduleCard}><p>Loading your schedule...</p></div>
+                    ) : filteredSchedule.length > 0 ? (
+                        // ถ้ามีกิจกรรมในวันที่เลือก ให้ map ข้อมูลมาแสดง
+                        filteredSchedule.map(event => (
+                            <div className={styles.scheduleCard} key={event.EventID}>
+                                <div className={styles.timeBlock}>
+                                    {/* ใช้ function formatTime เพื่อแสดงเวลา */}
+                                    <span>{formatTime(event.StartDateTime)}</span>
+                                    <span>{formatTime(event.EndDateTime)}</span>
+                                </div>
+                                <div className={styles.scheduleDetails}>
+                                    <h3>{event.EventName}</h3>
+                                    <p><img src={loci} alt="location icon" /> {event.Location}</p>
+                                    
+                                    {/* แก้ไขปุ่ม Details ให้เป็น <Link> ที่ชี้ไปหน้ารายละเอียดของ Event นั้นๆ */}
+                                    <Link to={`/eventenroll/${event.EventID}`} className={styles.detailsBtn}>
+                                        Details
+                                    </Link>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        // ถ้าไม่มีกิจกรรมในวันที่เลือก ให้แสดงข้อความ
+                        <div className={styles.scheduleCard}>
+                            <div className={styles.scheduleDetails}>
+                                <p>You have no events scheduled for this day.</p>
+                            </div>
+                        </div>
+                    )}
+                    {/* =============================================================== */}
+                    {/* END: แก้ไขส่วนแสดงผล Schedule Card                               */}
+                    {/* =============================================================== */}
+                </div>    
             </div>
         </main>
         

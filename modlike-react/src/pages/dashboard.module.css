@@ -147,7 +147,14 @@
 }
 
 /* --- KEY CHANGE 2: แก้ไข Button --- */
+.nostyle-link {
+  text-decoration: none; /* เอาเส้นใต้ออก */
+  color: inherit;       /* ให้สีตัวอักษรสืบทอดจาก element แม่ */
+}
 .detailsBtn {
+    display: inline-block; 
+    text-align: center;
+
     background-color: #162660;
     color: white;
     border: none;
@@ -162,6 +169,7 @@
     margin-top: auto; /* ดันปุ่มลงไปอยู่ล่างสุดของ .eventInfo */
     align-self: flex-end; /* จัดปุ่มไปอยู่ทางขวา */
     /* --- END: เทคนิคการจัดวาง --- */
+    text-decoration: none !important;
 }
 
 .detailsBtn:hover {
@@ -195,7 +203,15 @@
     color: #162660; 
     margin: 0; 
 }
-.view { cursor: pointer; } /* เปลี่ยนจาก #view */
+
+.scheduleListContainer{
+    display: flex;
+    flex-direction: column;
+    
+    /* ✅ [เพิ่มบรรทัดนี้] เพื่อสร้างระยะห่างระหว่าง Card แต่ละอัน */
+    gap: 5px; 
+}
+.view { cursor: pointer; text-decoration: none; } /* เปลี่ยนจาก #view */
 .view:hover{ color: #a6cffd; } /* เปลี่ยนจาก #view:hover */
 .scheduleLayout { display: flex; gap: 30px; }
 .dateTabs { width: 85px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; flex-shrink: 0; -ms-overflow-style: none; scrollbar-width: none; }

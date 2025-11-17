@@ -1,6 +1,8 @@
-// src/pages/Eventlistuser.jsx (ฉบับแก้ไข)
+// src/pages/Eventlistuser.jsx (ฉบับแก้ไขสมบูรณ์)
+
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+// ✅ [แก้ไข] 1. เพิ่มการ import 'Link' เข้ามา
+import { useNavigate, Link } from "react-router-dom"; 
 import Sidebar from "../components/Sidebar";
 import styles from "./eventlistuser.module.css";
 
@@ -9,7 +11,8 @@ import clocki from "../assets/images/Clock.png";
 import filteri from "../assets/images/Filter.png";
 
 const EventListPage1 = () => {
-  const [activeTab, setActiveTab] = useState("eventList"); // eventList | myEvent
+  // ... (ส่วน state และ functions อื่นๆ เหมือนเดิมทั้งหมด) ...
+  const [activeTab, setActiveTab] = useState("eventList"); 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,7 +32,6 @@ const EventListPage1 = () => {
     return sameDay ? `${d} ${t1} - ${t2}` : `${d} - ${d2}`;
   };
 
-  // ✅ helper: แสดงป้ายสถานะ (Pending => Processing)
   const renderStatusBadge = (status) => {
     if (!status) return null;
     const label = status === "Pending" ? "Processing" : status;
@@ -60,27 +62,22 @@ const EventListPage1 = () => {
       setLoading(true);
       setError(null);
       setEvents([]);
-
       const token = localStorage.getItem("token");
       if (!token) {
         navigate("/login");
         return;
       }
-
       const endpoint =
         activeTab === "eventList"
           ? `${apiBaseUrl}/events/approved`
-          : `${apiBaseUrl}/events/status`; // server คืน { events: [...] }
-
+          : `${apiBaseUrl}/events/status`;
       const res = await fetch(endpoint, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (!res.ok) {
         const e = await res.json().catch(() => ({}));
         throw new Error(e.message || `HTTP ${res.status}`);
       }
-
       const data = await res.json();
       const list = Array.isArray(data) ? data : data.events || [];
       setEvents(list);
@@ -119,20 +116,19 @@ const EventListPage1 = () => {
     }
   };
 
-  // ✅ [STEP 1] แก้ไข handleEdit ให้รับ status และเปลี่ยนเส้นทางสำหรับ Draft
   const handleEdit = (eventId, status) => {
     if (status === "Draft") {
-      // ถ้าเป็น Draft ให้ไปที่หน้า create พร้อมส่ง ID ไปเป็น query string
       navigate(`/create-event?editId=${eventId}`);
     } else {
-      // สถานะอื่นๆ (เช่น Pending, Rejected) ไปที่หน้า edit แบบเดิม
       navigate(`/events/edit/${eventId}`);
     }
   };
 
+
   return (
     <div className={styles.eventlistpage}>
       <main className={styles["main-content-area"]}>
+        {/* ... (ส่วน Tab และ Filter เหมือนเดิม) ... */}
         <div className={styles["tab-top"]}>
           <button
             className={`${styles["tab-item"]} ${activeTab === "eventList" ? styles.active : ""}`}
@@ -163,21 +159,13 @@ const EventListPage1 = () => {
             {!loading &&
               !error &&
               events.map((event) => {
-                const status = event.Status; // ใช้ชื่อฟิลด์จาก BE
+                const status = event.Status;
                 return (
-                  <div
-                    key={event.EventID}
-                    className={styles["event-cardlist1"]}
-                    style={{ position: "relative" }} // เพื่อวาง badge มุมขวาบน
-                  >
-                    {/* Badge สถานะ: แสดงเฉพาะแท็บ My Event */}
+                  <div key={event.EventID} className={styles["event-cardlist1"]} style={{ position: "relative" }}>
                     {activeTab === "myEvent" && renderStatusBadge(status)}
-
-                    {/* แสตมป์ยกเลิก (มีอยู่เดิม) */}
                     {activeTab === "myEvent" && status === "Cancelled" && (
                       <div className={styles["cancelled-stamp"]}>CANCELLED</div>
                     )}
-
                     <div className={styles["event-image-container"]}>
                       <img
                         src={
@@ -188,15 +176,12 @@ const EventListPage1 = () => {
                         alt={event.EventName}
                       />
                     </div>
-
                     <div className={styles["event-detailslist1"]}>
                       <h3 className={styles["event-title"]}>{event.EventName}</h3>
-
                       <div className={styles["event-info-row"]}>
                         <img src={clocki} alt="Time" />
                         <span>{formatDateTime(event.StartDateTime, event.EndDateTime)}</span>
                       </div>
-
                       <div className={`${styles["event-info-row"]} ${styles["location-row"]}`}>
                         <img src={loci} alt="Location" className={styles.loci} />
                         <div className={styles["location-text"]}>
@@ -204,9 +189,11 @@ const EventListPage1 = () => {
                         </div>
                       </div>
 
+                      {/* =============================================================== */}
+                      {/* START: ส่วนที่แก้ไขปุ่ม Details                              */}
+                      {/* =============================================================== */}
                       {activeTab === "myEvent" ? (
                         <div className={styles["management-buttons"]}>
-                          {/* ✅ [STEP 2] ส่ง status เข้าไปใน onClick ของปุ่ม Edit */}
                           {status === "Draft" && (
                             <>
                               <button
@@ -223,7 +210,6 @@ const EventListPage1 = () => {
                               </button>
                             </>
                           )}
-
                           {status === "Pending" && (
                             <>
                               <button
@@ -240,43 +226,36 @@ const EventListPage1 = () => {
                               </button>
                             </>
                           )}
-
-                          {/* {status === "Rejected" && (
-                            <button
-                              onClick={() => handleEdit(event.EventID)}
-                              className={`${styles["action-btn"]} ${styles["fix-btn"]}`}
-                            >
-                              Edit
-                            </button>
-                          )} */}
-
                           {(status === "Approved" || status === "Cancelled") && (
-                            <button
-                              onClick={() => navigate(`/events/${event.EventID}`)}
-                              className={styles["details-btnlist1"]}
+                            // ✅ [แก้ไข] 2. เปลี่ยน <button> เป็น <Link> และแก้ path
+                            <Link 
+                                to={`/eventenroll/${event.EventID}`} 
+                                className={styles["details-btnlist1"]}
                             >
                               Details
-                            </button>
+                            </Link>
                           )}
                         </div>
                       ) : (
-                        <button
-                          onClick={() => navigate(`/events/${event.EventID}`)}
-                          className={styles["details-btnlist1"]}
+                        // ✅ [แก้ไข] 3. เปลี่ยน <button> เป็น <Link> และแก้ path ในส่วนนี้ด้วย
+                        <Link 
+                            to={`/eventenroll/${event.EventID}`} 
+                            className={styles["details-btnlist1"]}
                         >
                           Details
-                        </button>
+                        </Link>
                       )}
+                      {/* =============================================================== */}
+                      {/* END: ส่วนที่แก้ไขปุ่ม Details                                */}
+                      {/* =============================================================== */}
                     </div>
                   </div>
                 );
               })}
-
             {!loading && !error && events.length === 0 && <p>No events found.</p>}
           </div>
         </div>
       </main>
-
       <Sidebar handleLogout={handleLogout} />
     </div>
   );
