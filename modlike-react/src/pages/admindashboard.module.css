@@ -176,7 +176,9 @@
     color: #162660;
     margin: 0;
 }
-.view { cursor: pointer; }
+
+.scheduleListContainer{display: flex; flex-direction: column; gap: 5px;}
+.view { cursor: pointer; text-decoration: none; }
 .view:hover{ color: #a6cffd; }
 .scheduleLayout { display: flex; gap: 30px; }
 .dateTabs { width: 85px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; flex-shrink: 0; -ms-overflow-style: none; scrollbar-width: none; }
@@ -247,3 +249,178 @@
 .statusDraft {
     background-color: #17a2b8; /* Teal */
 }
+
+/* ========================================================= */
+/* START: CSS สำหรับ Detail Modal (ฉบับปรับปรุงตามตัวอย่าง) */
+/* ========================================================= */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex; /* ใช้ flex เพื่อจัดกลาง */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: auto; /* เพิ่ม scroll ถ้า modal สูงเกินหน้าจอ */
+}
+
+/* 1. สไตล์หลักของ Modal Content */
+.modalContentDetail {
+    background-color: #F1E4D1; /* สีพื้นหลังหลัก */
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 100%;
+    max-width: 900px; /* กำหนดความกว้างสูงสุด */
+
+    /* 2. กำหนด Grid Layout ที่นี่ */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 คอลัมน์เท่าๆ กัน */
+    grid-template-areas:
+        "header header"
+        "textContent imageSidebar"
+        "reason reason"
+        "backBtn backBtn";
+    gap: 20px 30px; /* ระยะห่างระหว่างแถว และ คอลัมน์ */
+}
+
+.closeBtn {
+    color: #162660;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+}
+.closeBtn:hover {
+    color: #e74c3c;
+}
+
+
+/* 3. การจัดวางส่วนต่างๆ ตาม Grid Area */
+.detailHeader {
+    grid-area: header;
+    color: #162660;
+    margin-bottom: 10px;
+}
+.detailHeader h2 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+.textContent {
+    grid-area: textContent;
+}
+
+.imageSidebar {
+    grid-area: imageSidebar;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.imageSidebar img {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    object-fit: cover;
+}
+
+.reasonRejectionSection {
+    grid-area: reason;
+}
+
+.backBtn {
+    grid-area: backBtn;
+    justify-self: center; /* จัดให้อยู่กลาง grid area */
+    margin-top: 20px;
+    padding: 10px 40px;
+    background-color: #162660;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+
+/* 4. สไตล์สำหรับแถบหัวข้อ */
+.headerBandDetail {
+    background-color: #F1E4D1; 
+    border: 1px solid #162660; 
+    padding: 5px 15px;
+    margin: 20px 0 10px 0;
+    border-radius: 5px;
+}
+.headerBandDetail:first-child {
+    margin-top: 0;
+}
+.detailHeaderText {
+    margin: 0;
+    color: #162660;
+    font-size: 1.1em;
+    font-weight: 700;
+}
+.textContent p {
+    margin: 5px 0 10px 0;
+    padding-left: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* 5. สไตล์สำหรับ Status Box */
+.approvedStatusBox, .rejectedStatusBox, .pendingStatusBox {
+    color: white;
+    padding: 10px 25px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: fit-content;
+    margin: 0 auto 20px auto;
+}
+.approvedStatusBox { background-color: #2ecc71; }
+.rejectedStatusBox { background-color: #e74c3c; }
+.pendingStatusBox { background-color: #f39c12; }
+
+
+/* 6. สไตล์สำหรับปุ่ม Approve/Reject */
+.modalActions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    max-width: 350px;
+}
+.modalApproveBtn, .modalRejectBtn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    color: white;
+}
+.modalApproveBtn { background-color: #27ae60; }
+.modalRejectBtn { background-color: #c0392b; }
+.modalApproveBtn:hover, .modalRejectBtn:hover { opacity: 0.85; }
+
+/* ========================================================= */
+/* END: CSS สำหรับ Detail Modal                             */
+/* ========================================================= */

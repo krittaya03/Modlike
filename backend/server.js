@@ -474,35 +474,49 @@ app.put("/api/events/approve/:id", authenticateJWT, requireRole("admin"), async 
   }
 });
 
-// ============= BE3 : ดึงรายละเอียด event เดี่ยว (ใช้ตอนเปิดหน้าแก้ไข) ===========
-// ดึงอีเวนต์เดียวสำหรับ Edit/Details
+// ============= BE3 : ดึงรายละเอียด event เดี่ยว (สำหรับหน้า Details และ Edit) ===========
 app.get('/api/events/:id', authenticateJWT, async (req, res) => {
-  const eventId = req.params.id;
-  const userId  = req.user.id;
-  const role    = req.user.role;
+  try {
+    const eventId = req.params.id;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-  // Query เดิมทำงานได้ดีแล้ว ไม่ต้องแก้
-  const [rows] = await db.query(
-    // ✅ [แก้ไข] เพิ่มการ SELECT ทุก field เพื่อให้ข้อมูลครบถ้วนสำหรับฟอร์มแก้ไข
-    `SELECT *
-     FROM event
-     WHERE EventID = ?`,
-    [eventId]
-  );
+    // แก้ไข Query ให้ JOIN ตาราง users เพื่อดึงชื่อผู้จัด (OrganizerName) มาด้วย
+    const [rows] = await db.query(
+      `SELECT e.*, u.name AS OrganizerName 
+       FROM event e
+       LEFT JOIN users u ON e.EventOrgID = u.id
+       WHERE e.EventID = ?`,
+      [eventId]
+    );
 
-  if (!rows.length) {
-    return res.status(404).json({ message: 'Event not found' });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    const event = rows[0];
+
+    // --- ตรรกะการตรวจสอบสิทธิ์การเข้าถึงใหม่ ---
+    const isOwner = event.EventOrgID === userId;
+    const isAdmin = userRole === 'admin';
+    const isApprovedEvent = event.Status === 'Approved';
+
+    // อนุญาตให้เข้าถึงได้ถ้า:
+    // 1. คุณเป็นเจ้าของ Event (สำหรับหน้า Edit)
+    // 2. หรือ คุณเป็น Admin
+    // 3. หรือ Event นี้เป็น Event ที่ได้รับการอนุมัติแล้ว (สำหรับหน้า Enroll/Details ของ User ทั่วไป)
+    if (isOwner || isAdmin || isApprovedEvent) {
+      // ส่งข้อมูลกลับไปให้ Frontend
+      res.json({ event: event });
+    } else {
+      // ถ้าไม่ตรงเงื่อนไขใดๆ เลย (เช่น user ทั่วไปพยายามดู event ที่เป็น Draft ของคนอื่น)
+      return res.status(403).json({ message: 'Forbidden: You do not have permission to view this event.' });
+    }
+
+  } catch (err) {
+    console.error("Get Event by ID Error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  const event = rows[0];
-
-  // ย้ายการตรวจสอบสิทธิ์มาทำที่นี่เพื่อความชัดเจน
-  if (event.EventOrgID !== userId && role !== 'admin') {
-      return res.status(403).json({ message: 'Forbidden: You are not authorized to view this event' });
-  }
-
-  // ✅ [แก้ไข] แก้ไขการส่งข้อมูลกลับให้เป็น Object ที่มี key 'event' เพื่อให้ Frontend ทำงานได้ถูกต้อง
-  res.json({ event: event });
 });
 
 // ===============================================
@@ -606,6 +620,132 @@ app.put("/api/events/resubmit/:id", authenticateJWT, requireRole("user"), async 
     console.error("Resubmit Event Error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
+});
+
+
+//=====================================
+// Sprint 5: Event Detail and Enrollment (Updated for user_type)
+//=====================================
+
+// GET Event Detail (สำหรับหน้า Detail ของ user และ Organizer)
+app.get("/api/events/detail/:id", authenticateJWT, async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const userId = req.user.id;
+        const userType = req.user.google_id ? "google" : "local"; // 🔹 เพิ่ม userType
+
+        // ดึง event + organizer name
+        const [eventRows] = await db.query(
+            `SELECT e.*, u.name AS OrganizerName
+             FROM event e
+             JOIN users u ON e.EventOrgID = u.id
+             WHERE e.EventID = ?`,
+            [eventId]
+        );
+
+        if (!eventRows.length) return res.status(404).json({ message: "Event not found" });
+
+        const event = eventRows[0];
+
+        // จำนวนผู้เข้าร่วม
+        const [countRows] = await db.query(
+            "SELECT COUNT(*) AS total FROM event_participants WHERE event_id=?",
+            [eventId]
+        );
+        const currentParticipant = countRows[0].total;
+
+        // ตรวจสอบว่าผู้ใช้ลงทะเบียนแล้วหรือไม่
+        const [checkEnroll] = await db.query(
+            "SELECT * FROM event_participants WHERE event_id=? AND user_id=? AND user_type=?",
+            [eventId, userId, userType] // 🔹 เพิ่ม user_type
+        );
+        const isEnrolled = checkEnroll.length > 0;
+
+        // ตรวจสอบว่าผู้ใช้สามารถ enroll ได้หรือไม่
+        const canEnroll = event.EventOrgID !== userId && currentParticipant < event.MaxParticipant && !isEnrolled;
+
+        res.json({ event, currentParticipant, isEnrolled, canEnroll });
+    } catch (err) {
+        console.error("Fetch Event Detail Error:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// POST Enroll : ให้ user ลงทะเบียนเข้าร่วม event
+app.post("/api/events/enroll/:id", authenticateJWT, requireRole("user"), async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const userId = req.user.id;
+        const userType = req.user.google_id ? "google" : "local"; // 🔹 เพิ่ม userType
+
+        const [eventRows] = await db.query("SELECT * FROM event WHERE EventID=?", [eventId]);
+        if (!eventRows.length) return res.status(404).json({ message: "Event not found" });
+
+        const event = eventRows[0];
+
+        // Organizer ไม่สามารถลงทะเบียน event ของตัวเอง
+        if (event.EventOrgID === userId)
+            return res.status(403).json({ message: "Organizer cannot enroll their own event" });
+
+        // ตรวจสอบจำนวนผู้เข้าร่วม
+        const [countRows] = await db.query(
+            "SELECT COUNT(*) AS total FROM event_participants WHERE event_id=?",
+            [eventId]
+        );
+        if (countRows[0].total >= event.MaxParticipant)
+            return res.status(400).json({ message: "Event is full" });
+
+        // ตรวจสอบว่าลงทะเบียนแล้วหรือไม่
+        const [checkEnroll] = await db.query(
+            "SELECT * FROM event_participants WHERE event_id=? AND user_id=? AND user_type=?",
+            [eventId, userId, userType] // 🔹 เพิ่ม user_type
+        );
+        if (checkEnroll.length > 0)
+            return res.status(400).json({ message: "Already enrolled" });
+
+        // ลงทะเบียน
+        await db.query(
+            "INSERT INTO event_participants (event_id, user_id, user_type) VALUES (?, ?, ?)",
+            [eventId, userId, userType] // 🔹 เพิ่ม user_type
+        );
+
+        res.json({ message: "✅ Successfully enrolled" });
+    } catch (err) {
+        console.error("Enroll Error:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// GET Events that the current user is enrolled in //insert at 16-11-25
+app.get("/api/enrolled-events", authenticateJWT, requireRole("user"), async (req, res) => {
+    try {
+        const userId = req.user.id;
+        // ตรวจสอบว่า user มาจาก Google Login หรือ Local Login
+        const userType = req.user.google_id ? "google" : "local"; 
+
+        // Query เพื่อดึงข้อมูล Event จากตาราง event โดย JOIN กับ event_participants
+        // เพื่อหา event ที่มี user_id และ user_type ตรงกับคนที่ login อยู่
+        const [enrolledEvents] = await db.query(
+            `SELECT
+                e.EventID,
+                e.EventName,
+                e.Location,
+                e.StartDateTime,
+                e.EndDateTime,
+                e.ImagePath
+             FROM event e
+             JOIN event_participants ep ON e.EventID = ep.event_id
+             WHERE ep.user_id = ? AND ep.user_type = ?
+             ORDER BY e.StartDateTime ASC`,
+            [userId, userType]
+        );
+
+        res.json(enrolledEvents);
+
+    } catch (err) {
+        console.error("Fetch Enrolled Events Error:", err);
+        res.status(500).json({ message: "Internal server error while fetching enrolled events" });
+    }
 });
 
 
